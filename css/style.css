@@ -326,3 +326,104 @@ h1 {
   text-align: center;
   padding: 20px 0;
 }
+/* css/style.css (追加在檔案最後) */
+
+/* 8. 儀表板動態樣式 */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.section-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+#current-course-title {
+  font-size: 24px;
+  font-weight: 600;
+}
+.btn-add {
+  background-color: var(--content-bg-color);
+  color: var(--text-color-light);
+  border: 1px dashed var(--border-color);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-add:hover {
+  background-color: #e3f0ff;
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+.btn-primary[disabled] {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+}
+
+/* 任務卡片勾選框 */
+.task-card .task-checkbox {
+  margin-right: 12px;
+  width: 20px;
+  height: 20px;
+}
+.task-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.task-card-header h3 {
+  margin: 0;
+  flex-grow: 1;
+}
+.task-card.completed h3,
+.task-card.completed .task-meta {
+  text-decoration: line-through;
+  color: var(--text-color-light);
+}
+
+/* 9. Modal 彈出視窗樣式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none; /* 平時隱藏 */
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+.modal-overlay.show {
+  display: flex; /* 透過 JS 加入 .show 來顯示 */
+}
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: var(--radius-l);
+  width: 100%;
+  max-width: 450px;
+}
+.modal-content h2 {
+  margin-top: 0;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 30px;
+}
+.btn-secondary {
+  padding: 12px 24px;
+  background-color: var(--content-bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-m);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}

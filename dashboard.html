@@ -23,30 +23,36 @@
       <div class="dashboard-layout">
         <aside class="sidebar">
           <section class="sidebar-section">
-            <h2>我的課程</h2>
-            <ul class="course-list">
-              <li><a href="#" class="active">網頁程式設計</a></li>
-              <li><a href="#">資料庫管理</a></li>
-              <li><a href="#">專案管理</a></li>
-            </ul>
+            <div class="section-header">
+              <h2>我的課程</h2>
+              <button id="add-course-btn" class="btn-add">+</button>
+            </div>
+            <ul id="course-list" class="course-list"></ul>
           </section>
         </aside>
 
         <section class="main-content">
-          <h2>網頁程式設計 - 待辦任務</h2>
-          <div class="task-card">
-            <h3>專題提案報告</h3>
-            <p class="task-meta">截止日期：2025/08/15</p>
-            <div class="task-status status-urgent">緊急</div>
+          <div class="section-header">
+            <h2 id="current-course-title">請選擇一門課程</h2>
+            <button id="add-task-btn" class="btn-primary" disabled>
+              新增任務
+            </button>
           </div>
-          <div class="task-card">
-            <h3>完成第二章節測驗</h3>
-            <p class="task-meta">截止日期：2025/08/22</p>
-            <div class="task-status status-normal">一般</div>
-          </div>
+          <div id="task-list-container"></div>
         </section>
       </div>
     </main>
+
+    <div id="modal" class="modal-overlay">
+      <div class="modal-content">
+        <h2 id="modal-title">Modal Title</h2>
+        <form id="modal-form"></form>
+        <div class="modal-actions">
+          <button id="modal-cancel-btn" class="btn-secondary">取消</button>
+          <button id="modal-save-btn" class="btn-primary">儲存</button>
+        </div>
+      </div>
+    </div>
 
     <script src="js/dashboard.js"></script>
   </body>
