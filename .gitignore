@@ -1,0 +1,7 @@
+# .gitignore
+
+# 忽略系統檔案
+.DS_Store
+
+# 忽略未來可能安裝的套件資料夾
+node_modules/

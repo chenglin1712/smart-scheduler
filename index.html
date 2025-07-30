@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>登入 - 大學生智能排程系統</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="nav-container">
+        <a href="index.html" class="nav-logo">Scheduler Pro</a>
+        <nav class="nav-menu"></nav>
+      </div>
+    </header>
+
+    <main class="main-container">
+      <div class="login-wrapper">
+        <h1>歡迎回來</h1>
+        <p class="subtitle">登入以繼續你的學習旅程</p>
+        <form class="login-form">
+          <div class="form-group">
+            <label for="email">電子郵件</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="name@student.edu.tw"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="password">密碼</label>
+            <input type="password" id="password" required />
+          </div>
+          <button type="submit" class="btn-primary">登入</button>
+          <p class="form-footer">還沒有帳號嗎？ <a href="#">立即註冊</a></p>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>
