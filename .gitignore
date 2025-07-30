@@ -5,3 +5,8 @@
 
 # 忽略未來可能安裝的套件資料夾
 node_modules/
+
+# Backend specific
+backend/node_modules
+backend/.env
+*.db
