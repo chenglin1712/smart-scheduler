@@ -292,3 +292,37 @@ h1 {
 .course-grade-list .course-item:last-child {
   border-bottom: none;
 }
+
+/* css/style.css (追加在檔案最後) */
+
+/* 7. GPA 計算機動態樣式 */
+.course-item {
+  align-items: center; /* 垂直置中 */
+}
+.course-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.btn-delete {
+  background-color: #fceeee;
+  color: #d92d20;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%; /* 圓形 */
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 24px; /* 垂直置中文字 */
+  text-align: center;
+  transition: background-color 0.2s ease;
+}
+.btn-delete:hover {
+  background-color: #f7d3d3;
+}
+.empty-list-text {
+  color: var(--text-color-light);
+  text-align: center;
+  padding: 20px 0;
+}
