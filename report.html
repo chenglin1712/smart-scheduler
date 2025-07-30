@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>數據報告 - 大學生智能排程系統</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="nav-container">
+        <a href="index.html" class="nav-logo">Scheduler Pro</a>
+        <nav class="nav-menu">
+          <a href="dashboard.html">儀表板</a>
+          <a href="gpa.html">GPA 計算機</a>
+          <a href="report.html" class="active">數據報告</a>
+          <a href="#">登出</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main-container">
+      <h1>數據報告</h1>
+      <div class="report-container">
+        <div class="chart-card">
+          <h2>各科任務數量分析</h2>
+          <canvas id="tasksPerCourseChart"></canvas>
+        </div>
+      </div>
+    </main>
+
+    <script src="js/report.js"></script>
+  </body>
+</html>

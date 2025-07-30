@@ -427,3 +427,26 @@ h1 {
   font-weight: 500;
   cursor: pointer;
 }
+
+/* css/style.css (追加在檔案最後) */
+
+/* 10. 報告頁面樣式 */
+.report-container {
+  display: grid;
+  grid-template-columns: 1fr; /* 現在只有一張圖表，先設定為一欄 */
+  gap: 30px;
+}
+
+.chart-card {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: var(--radius-l);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.chart-card h2 {
+  margin-top: 0;
+  text-align: center;
+  margin-bottom: 24px;
+}
