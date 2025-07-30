@@ -146,3 +146,88 @@ h1 {
   text-decoration: none;
   font-weight: 500;
 }
+
+/* css/style.css (追加在檔案最後) */
+
+/* 5. 儀表板頁面樣式 */
+.dashboard-layout {
+  display: flex;
+  gap: 30px; /* 左右兩欄的間距 */
+  align-items: flex-start;
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0; /* 防止側邊欄被壓縮 */
+}
+
+.sidebar-section h2 {
+  font-size: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 16px;
+}
+
+.course-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.course-list li a {
+  display: block;
+  padding: 10px 16px;
+  text-decoration: none;
+  color: var(--text-color-light);
+  border-radius: var(--radius-m);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-weight: 500;
+}
+.course-list li a:hover {
+  background-color: var(--content-bg-color);
+  color: var(--text-color);
+}
+.course-list li a.active {
+  background-color: #e3f0ff; /* 淺藍色背景 */
+  color: var(--primary-color);
+}
+
+.main-content {
+  flex-grow: 1; /* 主內容區填滿剩餘空間 */
+}
+.main-content h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-top: 0;
+}
+
+.task-card {
+  background-color: var(--content-bg-color);
+  padding: 20px;
+  border-radius: var(--radius-l);
+  margin-bottom: 16px;
+  border: 1px solid #e1e1e3;
+}
+.task-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+}
+.task-meta {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  color: var(--text-color-light);
+}
+.task-status {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+}
+.status-urgent {
+  background-color: #ffebeb;
+  color: #d92d20;
+}
+.status-normal {
+  background-color: #e3f0ff;
+  color: var(--primary-color);
+}
