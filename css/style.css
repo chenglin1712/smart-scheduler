@@ -231,3 +231,64 @@ h1 {
   background-color: #e3f0ff;
   color: var(--primary-color);
 }
+
+/* css/style.css (追加在檔案最後) */
+
+/* 6. GPA 計算機頁面樣式 */
+.gpa-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 兩欄佈局 */
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.gpa-form-container,
+.gpa-result-container {
+  background-color: var(--content-bg-color);
+  padding: 30px;
+  border-radius: var(--radius-l);
+}
+
+.gpa-form-container h2,
+.gpa-result-container h2 {
+  font-size: 24px;
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
+.form-group-inline {
+  display: flex;
+  gap: 20px;
+}
+.form-group-inline .form-group {
+  flex: 1;
+}
+
+.gpa-display {
+  text-align: center;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: var(--radius-m);
+  margin-bottom: 20px;
+}
+.gpa-label {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-color-light);
+}
+.gpa-value {
+  margin: 8px 0 0 0;
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.course-grade-list .course-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.course-grade-list .course-item:last-child {
+  border-bottom: none;
+}
