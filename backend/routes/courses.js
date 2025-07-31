@@ -65,7 +65,8 @@ router.get("/:courseId/tasks", auth, async (req, res) => {
 // ★★★ 新增：為特定課程新增一個任務 ★★★
 // --- POST /api/courses/:courseId/tasks ---
 router.post("/:courseId/tasks", auth, async (req, res) => {
-  const { title, deadline } = req.body;
+  // ★ 新增 estimatedTime 的解構
+  const { title, deadline, estimatedTime } = req.body;
   if (!title) {
     return res.status(400).json({ message: "任務標題為必填欄位。" });
   }
@@ -73,8 +74,9 @@ router.post("/:courseId/tasks", auth, async (req, res) => {
   try {
     const db = req.db;
     const result = await db.run(
-      "INSERT INTO Tasks (title, deadline, groupId) VALUES (?, ?, ?)",
-      [title, deadline || null, req.params.courseId]
+      // ★ 在 INSERT 指令中加入 estimatedTime
+      "INSERT INTO Tasks (title, deadline, estimatedTime, groupId) VALUES (?, ?, ?, ?)",
+      [title, deadline || null, estimatedTime || null, req.params.courseId]
     );
 
     const newTask = await db.get("SELECT * FROM Tasks WHERE id = ?", [
@@ -82,6 +84,7 @@ router.post("/:courseId/tasks", auth, async (req, res) => {
     ]);
     res.status(201).json(newTask);
   } catch (error) {
+    //... (錯誤處理不變)
     console.error("新增任務時發生錯誤:", error);
     res.status(500).json({ message: "伺服器內部錯誤" });
   }

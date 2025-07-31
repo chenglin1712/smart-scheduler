@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // --- 1. DOM 元素 & 2. 狀態 & 3. fetchAPI (皆不變) ---
+  // --- 1. DOM 元素 ---
   const courseList = document.getElementById("course-list");
   const taskListContainer = document.getElementById("task-list-container");
   const currentCourseTitle = document.getElementById("current-course-title");
@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalSaveBtn = document.getElementById("modal-save-btn");
   const modalCancelBtn = document.getElementById("modal-cancel-btn");
   const logoutButton = document.getElementById("logout-btn");
+
+  // --- 2. 應用程式狀態 ---
   const state = {
     courses: [],
     tasks: [],
@@ -19,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     token: localStorage.getItem("token"),
   };
 
+  // --- 3. 可重複使用的 API 請求函式 (強健版) ---
   async function fetchAPI(method, url, body = null) {
     const headers = {
       "Content-Type": "application/json",
@@ -28,17 +31,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (body) {
       config.body = JSON.stringify(body);
     }
+
     const response = await fetch(`http://localhost:5001${url}`, config);
+
     if (!response.ok) {
       if (response.status === 401) logout();
-      const errorData = await response.json();
-      throw new Error(errorData.message || "API 請求失敗");
+
+      const contentType = response.headers.get("content-type");
+      let errorData;
+
+      if (contentType && contentType.includes("application/json")) {
+        errorData = await response.json();
+      } else {
+        const errorText = await response.text();
+        errorData = { message: errorText };
+      }
+      throw new Error(errorData.message || "API 請求失敗，且無錯誤訊息。");
     }
-    // 對於 DELETE 請求，204 No Content 是成功的回應，沒有 body
+
     return response.status === 204 ? null : response.json();
   }
 
-  // --- 渲染函式 ---
+  // --- 4. 渲染函式 ---
   function renderCourses() {
     courseList.innerHTML = "";
     if (state.courses.length === 0) {
@@ -80,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const taskCard = document.createElement("div");
       taskCard.className = `task-card ${task.completed ? "completed" : ""}`;
       taskCard.dataset.id = task.id;
-      // ★★★ 關鍵：在 checkbox 和 delete button 上加上 data-task-id ★★★
+      taskCard.dataset.actualTime = task.actualTime || 0;
       taskCard.innerHTML = `
                 <div class="task-card-header">
                     <input type="checkbox" class="task-checkbox" data-task-id="${
@@ -92,12 +106,20 @@ document.addEventListener("DOMContentLoaded", () => {
                     }">×</button>
                 </div>
                 <p class="task-meta">截止日期：${task.deadline || "未設定"}</p>
+                <div class="task-time-info">
+                    <span>預計 ${task.estimatedTime || "-"} 分鐘 / 已花費 ${
+        task.actualTime || 0
+      } 分鐘</span>
+                    <button class="btn-add-time" data-task-id="${
+                      task.id
+                    }">增加時間</button>
+                </div>
             `;
       taskListContainer.appendChild(taskCard);
     });
   }
 
-  // --- 資料處理函式 ---
+  // --- 5. 資料處理函式 ---
   async function loadCourses() {
     try {
       state.courses = await fetchAPI("GET", "/api/courses");
@@ -106,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
       alert(`載入課程失敗: ${error.message}`);
     }
   }
+
   async function loadTasks(courseId) {
     try {
       state.tasks = await fetchAPI("GET", `/api/courses/${courseId}/tasks`);
@@ -114,6 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
       alert(`載入任務失敗: ${error.message}`);
     }
   }
+
   function openModal(type, itemId = null) {
     state.editingItemId = itemId;
     modalForm.innerHTML = "";
@@ -122,20 +146,32 @@ document.addEventListener("DOMContentLoaded", () => {
       modalForm.innerHTML = `<div class="form-group"><label for="course-name">課程名稱</label><input type="text" id="course-name" required></div>`;
     } else if (type === "task") {
       modalTitle.textContent = "新增任務";
-      modalForm.innerHTML = `<div class="form-group"><label for="task-title">任務標題</label><input type="text" id="task-title" required></div><div class="form-group"><label for="task-deadline">截止日期</label><input type="date" id="task-deadline"></div>`;
+      modalForm.innerHTML = `
+                <div class="form-group">
+                    <label for="task-title">任務標題</label>
+                    <input type="text" id="task-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="task-deadline">截止日期</label>
+                    <input type="date" id="task-deadline">
+                </div>
+                <div class="form-group">
+                    <label for="task-estimated-time">預計花費時間 (分鐘)</label>
+                    <input type="number" id="task-estimated-time" min="0">
+                </div>
+            `;
     }
     modal.classList.add("show");
   }
+
   function closeModal() {
     modal.classList.remove("show");
   }
 
-  // ★★★ 核心改造：完成 handleSave 函式 ★★★
   async function handleSave() {
     const formType = modalTitle.textContent.includes("課程")
       ? "course"
       : "task";
-
     if (formType === "course") {
       const courseName = document.getElementById("course-name").value.trim();
       if (!courseName) return;
@@ -146,15 +182,16 @@ document.addEventListener("DOMContentLoaded", () => {
         alert(`儲存課程失敗: ${error.message}`);
       }
     } else if (formType === "task") {
-      // ★ 新增 Task 儲存邏輯 ★
       const title = document.getElementById("task-title").value.trim();
       const deadline = document.getElementById("task-deadline").value;
+      const estimatedTime =
+        parseInt(document.getElementById("task-estimated-time").value) || null;
       if (!title) return;
-
       try {
         await fetchAPI("POST", `/api/courses/${state.selectedCourseId}/tasks`, {
           title,
           deadline,
+          estimatedTime,
         });
         await loadTasks(state.selectedCourseId);
       } catch (error) {
@@ -164,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
     closeModal();
   }
 
-  // --- 5. 登出與初始化 ---
+  // --- 6. 登出與初始化 ---
   function logout() {
     localStorage.removeItem("token");
     window.location.href = "index.html";
@@ -176,14 +213,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // ★★★ 核心改造：為任務列表加上點擊事件，處理完成和刪除 ★★★
     taskListContainer.addEventListener("click", async (e) => {
       const target = e.target;
       const taskId = target.dataset.taskId;
+      if (!taskId) return;
 
-      if (!taskId) return; // 如果點到的不是帶有 data-task-id 的元素，就忽略
-
-      // 處理勾選框
       if (target.classList.contains("task-checkbox")) {
         try {
           const isCompleted = target.checked;
@@ -199,7 +233,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      // 處理刪除按鈕
       if (target.classList.contains("btn-delete")) {
         if (confirm("確定要刪除這個任務嗎？")) {
           try {
@@ -210,9 +243,27 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       }
+
+      if (target.classList.contains("btn-add-time")) {
+        const timeToAddStr = prompt("請輸入你這次花費的分鐘數：", "30");
+        const timeToAdd = parseInt(timeToAddStr);
+        if (timeToAddStr === null || isNaN(timeToAdd) || timeToAdd < 0) {
+          return;
+        }
+        const taskCard = target.closest(".task-card");
+        const currentActualTime = parseInt(taskCard.dataset.actualTime) || 0;
+        const newActualTime = currentActualTime + timeToAdd;
+        try {
+          await fetchAPI("PATCH", `/api/tasks/${taskId}`, {
+            actualTime: newActualTime,
+          });
+          await loadTasks(state.selectedCourseId);
+        } catch (error) {
+          alert(`更新時間失敗: ${error.message}`);
+        }
+      }
     });
 
-    // 其他事件監聽器
     courseList.addEventListener("click", async (e) => {
       e.preventDefault();
       if (e.target.tagName === "A") {
@@ -221,6 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
         await loadTasks(state.selectedCourseId);
       }
     });
+
     logoutButton.addEventListener("click", (e) => {
       e.preventDefault();
       logout();
