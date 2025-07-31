@@ -51,13 +51,15 @@ async function startServer() {
     const userRoutes = require("./routes/users");
     const courseRoutes = require("./routes/courses");
     const taskRoutes = require("./routes/tasks");
-    const syllabusRoutes = require("./routes/syllabus"); // ★ 確認有引入
+    const documentRoutes = require("./routes/documents"); // 使用新的 document 路由
+    const analyzeRoutes = require("./routes/analyze");
 
     // 使用所有路由
     app.use("/api/users", userRoutes);
     app.use("/api/courses", courseRoutes);
     app.use("/api/tasks", taskRoutes);
-    app.use("/api/syllabus", syllabusRoutes); // ★ 確認有使用
+    app.use("/api/documents", documentRoutes); // 註冊新的 document 路由
+    app.use("/api/analyze", analyzeRoutes);
 
     // --- 啟動伺服器 ---
     // 只有在所有設定都完成後，才啟動伺服器監聽
