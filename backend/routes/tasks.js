@@ -3,17 +3,15 @@ const router = express.Router();
 const auth = require("../middleware/auth");
 
 // --- GET /api/tasks ---
-// 獲取登入使用者的所有任務 (升級版：可接收日期範圍)
+// (此部分無變動)
 router.get("/", auth, async (req, res) => {
   const db = req.db;
-  const { start, end } = req.query; // 從 URL 查詢參數中讀取 start 和 end
+  const { start, end } = req.query;
 
   try {
-    // 基礎查詢語句
     let query = `SELECT * FROM Tasks WHERE groupId IN (SELECT id FROM Groups WHERE ownerId = ?)`;
     const params = [req.user.id];
 
-    // 如果前端提供了 start 和 end 參數，就加入日期過濾條件
     if (start && end) {
       query += ` AND deadline BETWEEN ? AND ?`;
       params.push(start, end);
@@ -28,7 +26,7 @@ router.get("/", auth, async (req, res) => {
 });
 
 // --- PATCH /api/tasks/:taskId ---
-// 更新一個任務 (此部分無變動)
+// (此部分無變動)
 router.patch("/:taskId", auth, async (req, res) => {
   const { completed, actualTime } = req.body;
   const { taskId } = req.params;
@@ -58,14 +56,13 @@ router.patch("/:taskId", auth, async (req, res) => {
     ]);
     res.json(updatedTask);
   } catch (error) {
-    // ★★★ 錯誤已修正：在這裡加上了遺失的 '{' ★★★
     console.error("更新任務時發生錯誤:", error);
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });
 
 // --- DELETE /api/tasks/:taskId ---
-// 刪除一個任務 (此部分無變動)
+// (此部分無變動)
 router.delete("/:taskId", auth, async (req, res) => {
   const { taskId } = req.params;
   try {
@@ -74,6 +71,40 @@ router.delete("/:taskId", auth, async (req, res) => {
     res.status(204).send();
   } catch (error) {
     console.error("刪除任務時發生錯誤:", error);
+    res.status(500).json({ message: "伺服器內部錯誤" });
+  }
+});
+
+// ★★★ 核心修改：加入儲存任務排序的 API ★★★
+// --- POST /api/tasks/reorder ---
+router.post("/reorder", auth, async (req, res) => {
+  const { orderedTaskIds } = req.body;
+  if (!Array.isArray(orderedTaskIds)) {
+    return res
+      .status(400)
+      .json({ message: "請求格式錯誤，需要一個任務 ID 的陣列。" });
+  }
+
+  const db = req.db;
+  try {
+    // 使用資料庫交易，確保所有更新要嘛全部成功，要嘛全部失敗
+    await db.exec("BEGIN TRANSACTION");
+
+    await Promise.all(
+      orderedTaskIds.map((taskId, index) => {
+        return db.run("UPDATE Tasks SET orderIndex = ? WHERE id = ?", [
+          index,
+          taskId,
+        ]);
+      })
+    );
+
+    await db.exec("COMMIT");
+
+    res.json({ message: "任務順序更新成功！" });
+  } catch (error) {
+    await db.exec("ROLLBACK"); // 如果出錯，撤銷所有變更
+    console.error("更新任務順序時發生錯誤:", error);
     res.status(500).json({ message: "伺服器內部錯誤" });
   }
 });

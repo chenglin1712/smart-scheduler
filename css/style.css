@@ -620,3 +620,9 @@ hr {
   color: var(--primary-color);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
+
+/* 20. SortableJS 拖曳樣式 */
+.sortable-ghost {
+  opacity: 0.4;
+  background: #c8ebfb;
+}

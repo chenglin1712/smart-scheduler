@@ -1,32 +1,34 @@
-// js/dashboard.js (日曆功能 - 最終穩定版)
 document.addEventListener("DOMContentLoaded", () => {
   // --- 1. DOM 元素 ---
-  const courseList = document.getElementById("course-list"),
-    taskListContainer = document.getElementById("task-list-container"),
-    currentCourseTitle = document.getElementById("current-course-title"),
-    addCourseBtn = document.getElementById("add-course-btn"),
-    addTaskBtn = document.getElementById("add-task-btn"),
-    modal = document.getElementById("modal"),
-    modalTitle = document.getElementById("modal-title"),
-    modalForm = document.getElementById("modal-form"),
-    modalSaveBtn = document.getElementById("modal-save-btn"),
-    modalCancelBtn = document.getElementById("modal-cancel-btn"),
-    logoutButton = document.getElementById("logout-btn"),
-    docManagementSection = document.getElementById(
-      "document-management-section"
-    ),
-    documentList = document.getElementById("document-list"),
-    documentUploadInput = document.getElementById("document-upload-input"),
-    uploadDocBtn = document.getElementById("upload-doc-btn"),
-    analyzeBtn = document.getElementById("analyze-btn"),
-    fileNameDisplay = document.getElementById("file-name-display"),
-    spinner = document.getElementById("spinner-overlay"),
-    viewSwitcher = document.getElementById("view-switcher"),
-    listViewBtn = document.getElementById("list-view-btn"),
-    calendarViewBtn = document.getElementById("calendar-view-btn"),
-    listViewContainer = document.getElementById("list-view-container"),
-    calendarViewContainer = document.getElementById("calendar-view-container");
+  const courseList = document.getElementById("course-list");
+  const taskListContainer = document.getElementById("task-list-container");
+  const currentCourseTitle = document.getElementById("current-course-title");
+  const addCourseBtn = document.getElementById("add-course-btn");
+  const addTaskBtn = document.getElementById("add-task-btn");
+  const modal = document.getElementById("modal");
+  const modalTitle = document.getElementById("modal-title");
+  const modalForm = document.getElementById("modal-form");
+  const modalSaveBtn = document.getElementById("modal-save-btn");
+  const modalCancelBtn = document.getElementById("modal-cancel-btn");
+  const logoutButton = document.getElementById("logout-btn");
+  const docManagementSection = document.getElementById(
+    "document-management-section"
+  );
+  const documentList = document.getElementById("document-list");
+  const documentUploadInput = document.getElementById("document-upload-input");
+  const uploadDocBtn = document.getElementById("upload-doc-btn");
+  const analyzeBtn = document.getElementById("analyze-btn");
+  const fileNameDisplay = document.getElementById("file-name-display");
+  const spinner = document.getElementById("spinner-overlay");
+  const viewSwitcher = document.getElementById("view-switcher");
+  const listViewBtn = document.getElementById("list-view-btn");
+  const calendarViewBtn = document.getElementById("calendar-view-btn");
+  const listViewContainer = document.getElementById("list-view-container");
+  const calendarViewContainer = document.getElementById(
+    "calendar-view-container"
+  );
   let calendar;
+  let sortableInstance = null;
 
   // --- 2. 應用程式狀態 ---
   const state = {
@@ -88,6 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
+
   function renderTasks() {
     taskListContainer.innerHTML = "";
     const selectedCourse = state.courses.find(
@@ -106,7 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (tasksForCourse.length === 0) {
       taskListContainer.innerHTML =
         '<p class="empty-list-text">太棒了，目前沒有待辦任務！</p>';
-      return;
     }
     tasksForCourse.forEach((task) => {
       const taskCard = document.createElement("div");
@@ -143,7 +145,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }">增加時間</button></div>`;
       taskListContainer.appendChild(taskCard);
     });
+
+    initSortable();
   }
+
   function renderDocuments() {
     documentList.innerHTML = "";
     if (state.documents.length === 0) {
@@ -159,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 5. 資料處理函式 ---
+  // --- 5. 資料處理與互動函式 ---
   async function loadCourses() {
     try {
       state.courses = await fetchAPI("GET", "/api/courses");
@@ -240,16 +245,41 @@ document.addEventListener("DOMContentLoaded", () => {
     closeModal();
   }
 
+  function initSortable() {
+    if (sortableInstance) {
+      sortableInstance.destroy();
+    }
+    sortableInstance = new Sortable(taskListContainer, {
+      animation: 150,
+      ghostClass: "sortable-ghost",
+      onEnd: async function (evt) {
+        evt.preventDefault(); // ★ 核心修正：阻止瀏覽器的預設跳轉行為
+
+        const taskCards = Array.from(taskListContainer.children);
+        const orderedTaskIds = taskCards.map((card) => card.dataset.id);
+        try {
+          await fetchAPI("POST", "/api/tasks/reorder", { orderedTaskIds });
+          showToast("任務順序已儲存！", "success");
+        } catch (error) {
+          showToast(`儲存順序失敗: ${error.message}`, "error");
+          loadTasks(state.selectedCourseId);
+        }
+      },
+    });
+  }
+
   // --- 6. 登出與初始化 ---
   function logout() {
     localStorage.removeItem("token");
     window.location.href = "index.html";
   }
+
   async function init() {
     if (!state.token) {
       logout();
       return;
     }
+
     calendar = new FullCalendar.Calendar(calendarViewContainer, {
       initialView: "dayGridMonth",
       locale: "zh-tw",
@@ -283,6 +313,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       },
     });
+
+    // --- 綁定所有事件監聽器 ---
     listViewBtn.addEventListener("click", () => {
       state.currentView = "list";
       listViewContainer.style.display = "block";
@@ -411,7 +443,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
     analyzeBtn.addEventListener("click", async () => {
-      if (!state.selectedCourseId) return;
       if (
         confirm(
           "確定要讓 AI 綜合分析此課程的所有文件嗎？這個過程可能需要一點時間。"
@@ -435,6 +466,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     });
+
+    // --- 初始載入 ---
     await loadCourses();
     docManagementSection.style.display = "none";
     viewSwitcher.style.display = "none";
