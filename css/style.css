@@ -450,3 +450,9 @@ h1 {
   text-align: center;
   margin-bottom: 24px;
 }
+/* 11. 錯誤訊息樣式 */
+.error-text {
+  color: #d92d20; /* 紅色 */
+  font-weight: 500;
+  min-height: 20px; /* 佔一個高度，避免畫面跳動 */
+}
