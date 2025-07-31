@@ -1,4 +1,4 @@
-// js/dashboard.js
+// js/dashboard.js (全新改造後版本)
 
 document.addEventListener("DOMContentLoaded", () => {
   // --- 1. 抓取所有需要的 DOM 元素 ---
@@ -12,18 +12,53 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalForm = document.getElementById("modal-form");
   const modalSaveBtn = document.getElementById("modal-save-btn");
   const modalCancelBtn = document.getElementById("modal-cancel-btn");
+  const logoutButton = document.getElementById("logout-btn");
 
   // --- 2. 應用程式的狀態 (State) ---
-  let state = {
-    courses: JSON.parse(localStorage.getItem("courses")) || [],
-    tasks: JSON.parse(localStorage.getItem("tasks")) || [],
+  const state = {
+    courses: [], // 資料將從後端獲取
+    tasks: [], // 暫時還沒用到
     selectedCourseId: null,
-    editingItemId: null, // 用來判斷是新增還是編輯
+    editingItemId: null,
+    token: localStorage.getItem("token"),
   };
 
-  // --- 3. 核心渲染函式 (Render Functions) ---
+  // --- ★★★ 核心改造：可重複使用的 API 請求函式 ★★★ ---
+  async function fetchAPI(method, url, body = null) {
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${state.token}`, // 帶上我們的 JWT 通行證
+    };
 
-  // 渲染課程列表 (左側邊欄)
+    const config = {
+      method: method,
+      headers: headers,
+    };
+
+    if (body) {
+      config.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(`http://localhost:5001${url}`, config);
+
+    if (!response.ok) {
+      // 如果是 401 (未授權)，可能 token 過期，直接踢回登入頁
+      if (response.status === 401) {
+        logout();
+      }
+      const errorData = await response.json();
+      throw new Error(errorData.message || "API 請求失敗");
+    }
+
+    // 如果是 204 (No Content) 這種沒有 body 的成功回應，直接回傳 null
+    if (response.status === 204) {
+      return null;
+    }
+
+    return response.json();
+  }
+
+  // --- 3. 渲染函式 (Render Functions) - 這部分幾乎不變 ---
   function renderCourses() {
     courseList.innerHTML = "";
     if (state.courses.length === 0) {
@@ -40,62 +75,32 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
-
-  // 渲染任務列表 (右側主內容)
+  // 任務渲染函式暫時保留，但先不使用
   function renderTasks() {
-    taskListContainer.innerHTML = "";
-    if (!state.selectedCourseId) {
-      taskListContainer.innerHTML =
-        '<p class="empty-list-text">請從左側選擇一門課程以檢視任務。</p>';
-      currentCourseTitle.textContent = "請選擇一門課程";
-      addTaskBtn.disabled = true;
-      return;
-    }
-
-    const selectedCourse = state.courses.find(
-      (c) => c.id === state.selectedCourseId
-    );
-    currentCourseTitle.textContent = selectedCourse.name;
-    addTaskBtn.disabled = false;
-
-    const tasksForCourse = state.tasks.filter(
-      (t) => t.courseId === state.selectedCourseId
-    );
-
-    if (tasksForCourse.length === 0) {
-      taskListContainer.innerHTML =
-        '<p class="empty-list-text">太棒了，目前沒有待辦任務！</p>';
-      return;
-    }
-
-    tasksForCourse.forEach((task) => {
-      const taskCard = document.createElement("div");
-      taskCard.className = `task-card ${task.completed ? "completed" : ""}`;
-      taskCard.dataset.id = task.id;
-      taskCard.innerHTML = `
-                <div class="task-card-header">
-                    <input type="checkbox" class="task-checkbox" ${
-                      task.completed ? "checked" : ""
-                    }>
-                    <h3>${task.title}</h3>
-                    <button class="btn-delete">×</button>
-                </div>
-                <p class="task-meta">截止日期：${task.deadline}</p>
-            `;
-      taskListContainer.appendChild(taskCard);
-    });
+    // ... 我們下個步驟再來實作 ...
+    currentCourseTitle.textContent = state.selectedCourseId
+      ? state.courses.find((c) => c.id === state.selectedCourseId)?.name ||
+        "選擇課程"
+      : "請選擇一門課程";
+    taskListContainer.innerHTML =
+      '<p class="empty-list-text">任務功能將在下一步實作。</p>';
   }
 
-  // --- 4. 資料儲存函式 ---
-  function saveData() {
-    localStorage.setItem("courses", JSON.stringify(state.courses));
-    localStorage.setItem("tasks", JSON.stringify(state.tasks));
+  // --- 4. 資料處理函式 (Data Handlers) ---
+  async function loadCourses() {
+    try {
+      const courses = await fetchAPI("GET", "/api/courses");
+      state.courses = courses;
+      renderCourses();
+    } catch (error) {
+      alert(`載入課程失敗: ${error.message}`);
+    }
   }
 
-  // --- 5. Modal 彈出視窗相關函式 ---
   function openModal(type, itemId = null) {
+    // ... 這部分邏輯不變 ...
     state.editingItemId = itemId;
-    modalForm.innerHTML = ""; // 清空之前的表單
+    modalForm.innerHTML = "";
 
     if (type === "course") {
       modalTitle.textContent = itemId ? "編輯課程" : "新增課程";
@@ -108,24 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }" required>
                 </div>
             `;
-    } else if (type === "task") {
-      modalTitle.textContent = itemId ? "編輯任務" : "新增任務";
-      const task = itemId ? state.tasks.find((t) => t.id === itemId) : {};
-      modalForm.innerHTML = `
-                <div class="form-group">
-                    <label for="task-title">任務標題</label>
-                    <input type="text" id="task-title" value="${
-                      task.title || ""
-                    }" required>
-                </div>
-                <div class="form-group">
-                    <label for="task-deadline">截止日期</label>
-                    <input type="date" id="task-deadline" value="${
-                      task.deadline || ""
-                    }" required>
-                </div>
-            `;
-    }
+    } // 任務 Modal 暫不處理
     modal.classList.add("show");
   }
 
@@ -133,10 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
     modal.classList.remove("show");
   }
 
-  // --- 6. 事件處理函式 (Event Handlers) ---
-
-  // 處理儲存按鈕 (Modal)
-  function handleSave() {
+  async function handleSave() {
     const formType = modalTitle.textContent.includes("課程")
       ? "course"
       : "task";
@@ -145,84 +130,51 @@ document.addEventListener("DOMContentLoaded", () => {
       const courseName = document.getElementById("course-name").value.trim();
       if (!courseName) return;
 
-      if (state.editingItemId) {
-        // 編輯模式
-        const course = state.courses.find((c) => c.id === state.editingItemId);
-        course.name = courseName;
-      } else {
-        // 新增模式
-        const newCourse = { id: Date.now(), name: courseName };
-        state.courses.push(newCourse);
-        state.selectedCourseId = newCourse.id; // 新增後自動選取
-      }
-    } else if (formType === "task") {
-      const taskTitle = document.getElementById("task-title").value.trim();
-      const taskDeadline = document.getElementById("task-deadline").value;
-      if (!taskTitle || !taskDeadline) return;
-
-      if (state.editingItemId) {
-        // 編輯模式
-        const task = state.tasks.find((t) => t.id === state.editingItemId);
-        task.title = taskTitle;
-        task.deadline = taskDeadline;
-      } else {
-        // 新增模式
-        const newTask = {
-          id: Date.now(),
-          courseId: state.selectedCourseId,
-          title: taskTitle,
-          deadline: taskDeadline,
-          completed: false,
-        };
-        state.tasks.push(newTask);
+      try {
+        if (state.editingItemId) {
+          // 編輯邏輯 (暫不實作)
+        } else {
+          // ★★★ 核心改造：呼叫後端 API 新增課程 ★★★
+          await fetchAPI("POST", "/api/courses", { name: courseName });
+        }
+        // 成功後，重新從伺服器載入一次課程列表，確保資料同步
+        await loadCourses();
+      } catch (error) {
+        alert(`儲存課程失敗: ${error.message}`);
       }
     }
-
-    saveData();
-    renderAll();
     closeModal();
   }
 
-  // 處理課程列表點擊
-  courseList.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (e.target.tagName === "A") {
-      state.selectedCourseId = parseInt(e.target.dataset.id);
-      renderAll();
-    }
-  });
+  // --- 5. 登出與初始化 ---
+  function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "index.html";
+  }
 
-  // 處理任務列表點擊 (完成/刪除)
-  taskListContainer.addEventListener("click", (e) => {
-    const taskCard = e.target.closest(".task-card");
-    if (!taskCard) return;
-
-    const taskId = parseInt(taskCard.dataset.id);
-    const task = state.tasks.find((t) => t.id === taskId);
-
-    if (e.target.classList.contains("task-checkbox")) {
-      task.completed = e.target.checked;
-    }
-    if (e.target.classList.contains("btn-delete")) {
-      if (confirm(`確定要刪除任務 "${task.title}" 嗎？`)) {
-        state.tasks = state.tasks.filter((t) => t.id !== taskId);
-      }
+  async function init() {
+    // 路由守衛
+    if (!state.token) {
+      logout();
+      return;
     }
 
-    saveData();
-    renderTasks(); // 只需重新渲染任務列表，效率更高
-  });
+    // 綁定事件監聽器
+    logoutButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      logout();
+    });
 
-  // --- 7. 設定按鈕的事件監聽器 ---
-  addCourseBtn.addEventListener("click", () => openModal("course"));
-  addTaskBtn.addEventListener("click", () => openModal("task"));
-  modalCancelBtn.addEventListener("click", closeModal);
-  modalSaveBtn.addEventListener("click", handleSave);
+    addCourseBtn.addEventListener("click", () => openModal("course"));
+    modalCancelBtn.addEventListener("click", closeModal);
+    modalSaveBtn.addEventListener("click", handleSave);
 
-  // --- 8. 初始渲染 ---
-  function renderAll() {
-    renderCourses();
+    // 頁面載入時，自動從後端獲取課程資料
+    await loadCourses();
+    // 順便渲染一下任務區塊的初始狀態
     renderTasks();
   }
-  renderAll();
+
+  // --- 執行初始化 ---
+  init();
 });

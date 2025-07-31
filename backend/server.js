@@ -47,6 +47,10 @@ async function startServer() {
     const userRoutes = require("./routes/users");
     app.use("/api/users", userRoutes);
 
+    // ★★★ 新增這兩行：引入並使用課程路由 ★★★
+    const courseRoutes = require("./routes/courses");
+    app.use("/api/courses", courseRoutes);
+
     // --- 啟動伺服器 ---
     app.listen(PORT, () => {
       console.log(`伺服器正在 http://localhost:${PORT} 上運行`);
