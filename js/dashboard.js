@@ -31,15 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (body) {
       config.body = JSON.stringify(body);
     }
-
     const response = await fetch(`http://localhost:5001${url}`, config);
-
     if (!response.ok) {
       if (response.status === 401) logout();
-
       const contentType = response.headers.get("content-type");
       let errorData;
-
       if (contentType && contentType.includes("application/json")) {
         errorData = await response.json();
       } else {
@@ -48,7 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       throw new Error(errorData.message || "API 請求失敗，且無錯誤訊息。");
     }
-
     return response.status === 204 ? null : response.json();
   }
 
@@ -194,6 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
           estimatedTime,
         });
         await loadTasks(state.selectedCourseId);
+        renderCourses(); // ★★★ Bug 修正 ★★★
       } catch (error) {
         alert(`儲存任務失敗: ${error.message}`);
       }
@@ -238,6 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
           try {
             await fetchAPI("DELETE", `/api/tasks/${taskId}`);
             await loadTasks(state.selectedCourseId);
+            renderCourses(); // ★★★ Bug 修正 ★★★
           } catch (error) {
             alert(`刪除任務失敗: ${error.message}`);
           }
