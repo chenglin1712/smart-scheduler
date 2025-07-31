@@ -1,75 +1,122 @@
-// js/report.js
-
+// js/report.js (全新版本)
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. 從 localStorage 取得我們需要的資料
-  const courses = JSON.parse(localStorage.getItem("courses")) || [];
-  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "index.html";
+    return;
+  }
 
-  // 2. 取得要繪製圖表的 canvas 元素
-  const ctx = document.getElementById("tasksPerCourseChart").getContext("2d");
+  // 登出按鈕邏輯
+  const logoutButton = document.getElementById("logout-btn");
+  if (logoutButton) {
+    logoutButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      localStorage.removeItem("token");
+      window.location.href = "index.html";
+    });
+  }
 
-  // 3. 資料處理：計算每門課有多少個任務
-  // 我們需要產生兩個陣列：一個是課程名稱 (標籤)，一個是對應的任務數量 (資料)
+  async function fetchAPI(url) {
+    const headers = { Authorization: `Bearer ${token}` };
+    const response = await fetch(`http://localhost:5001${url}`, { headers });
+    if (!response.ok) throw new Error("API 請求失敗");
+    return response.json();
+  }
 
-  const courseLabels = courses.map((course) => course.name);
+  async function generateReports() {
+    try {
+      // 平行發出兩個 API 請求，效率更高
+      const [courses, tasks] = await Promise.all([
+        fetchAPI("/api/courses"),
+        fetchAPI("/api/tasks"), // 呼叫我們的新 API
+      ]);
 
-  const taskCounts = courses.map((course) => {
-    // 對於每一個課程，去 tasks 陣列中篩選出屬於它的任務，並計算數量
-    return tasks.filter((task) => task.courseId === course.id).length;
-  });
+      if (courses.length > 0) {
+        generateTasksPerCourseChart(courses, tasks);
+        generateTimePerCourseChart(courses, tasks);
+      } else {
+        document.querySelector(".report-container").innerHTML =
+          '<p class="empty-list-text">沒有足夠的資料來生成圖表。</p>';
+      }
+    } catch (error) {
+      console.error("生成報告失敗:", error);
+      alert("生成報告失敗，請檢查主控台。");
+    }
+  }
 
-  // 4. 使用 Chart.js 建立圖表
-  if (courses.length > 0) {
+  function generateTasksPerCourseChart(courses, tasks) {
+    const ctx = document.getElementById("tasksPerCourseChart").getContext("2d");
+    const courseLabels = courses.map((c) => c.name);
+    const taskCounts = courses.map(
+      (c) => tasks.filter((t) => t.groupId === c.id).length
+    );
+
     new Chart(ctx, {
-      type: "bar", // 圖表類型：長條圖
+      type: "bar",
       data: {
-        labels: courseLabels, // X 軸的標籤
+        labels: courseLabels,
         datasets: [
           {
-            label: "任務數量", // 這個資料集的名稱
-            data: taskCounts, // Y 軸的資料
-            backgroundColor: [
-              // 長條的顏色
-              "rgba(255, 99, 132, 0.5)",
-              "rgba(54, 162, 235, 0.5)",
-              "rgba(255, 206, 86, 0.5)",
-              "rgba(75, 192, 192, 0.5)",
-              "rgba(153, 102, 255, 0.5)",
-              "rgba(255, 159, 64, 0.5)",
-            ],
-            borderColor: [
-              "rgba(255, 99, 132, 1)",
-              "rgba(54, 162, 235, 1)",
-              "rgba(255, 206, 86, 1)",
-              "rgba(75, 192, 192, 1)",
-              "rgba(153, 102, 255, 1)",
-              "rgba(255, 159, 64, 1)",
-            ],
+            label: "任務數量",
+            data: taskCounts,
+            backgroundColor: "rgba(54, 162, 235, 0.5)",
+            borderColor: "rgba(54, 162, 235, 1)",
             borderWidth: 1,
           },
         ],
       },
       options: {
-        scales: {
-          y: {
-            beginAtZero: true, // Y 軸從 0 開始
-            ticks: {
-              // 確保 Y 軸刻度為整數
-              precision: 0,
-            },
-          },
-        },
-        plugins: {
-          legend: {
-            display: false, // 不顯示頂部的圖例
-          },
-        },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+        plugins: { legend: { display: false } },
       },
     });
-  } else {
-    // 如果沒有課程資料，顯示提示文字
-    const chartCard = document.querySelector(".chart-card");
-    chartCard.innerHTML =
-      '<h2>各科任務數量分析</h2><p class="empty-list-text">沒有足夠的資料來生成圖表。</p>';
   }
+
+  function generateTimePerCourseChart(courses, tasks) {
+    const ctx = document.getElementById("timePerCourseChart").getContext("2d");
+
+    // 資料處理：計算每門課的總花費時間
+    const timeData = courses.map((course) => {
+      return tasks
+        .filter((task) => task.groupId === course.id)
+        .reduce((total, task) => total + (task.actualTime || 0), 0);
+    });
+
+    // 過濾掉沒有花費時間的課程，避免圖表太空
+    const filteredData = courses
+      .map((course, index) => ({
+        name: course.name,
+        time: timeData[index],
+      }))
+      .filter((item) => item.time > 0);
+
+    if (filteredData.length === 0) {
+      document.getElementById("timePerCourseChart").parentElement.innerHTML +=
+        '<p class="empty-list-text">所有課程皆無花費時間紀錄。</p>';
+      return;
+    }
+
+    new Chart(ctx, {
+      type: "pie", // 圖表類型：圓餅圖
+      data: {
+        labels: filteredData.map((d) => d.name),
+        datasets: [
+          {
+            label: "花費時間 (分鐘)",
+            data: filteredData.map((d) => d.time),
+            backgroundColor: [
+              "rgba(255, 99, 132, 0.7)",
+              "rgba(54, 162, 235, 0.7)",
+              "rgba(255, 206, 86, 0.7)",
+              "rgba(75, 192, 192, 0.7)",
+              "rgba(153, 102, 255, 0.7)",
+              "rgba(255, 159, 64, 0.7)",
+            ],
+          },
+        ],
+      },
+    });
+  }
+
+  generateReports();
 });

@@ -482,3 +482,9 @@ h1 {
   background-color: var(--content-bg-color);
   border-color: #c0c0c0;
 }
+
+/* css/style.css (追加在檔案最後) */
+/* 13. 報告頁面網格樣式 */
+.report-grid-2 {
+  grid-template-columns: 1fr 1fr;
+}
