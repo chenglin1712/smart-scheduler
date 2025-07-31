@@ -488,3 +488,31 @@ h1 {
 .report-grid-2 {
   grid-template-columns: 1fr 1fr;
 }
+
+/* 14. 任務截止日期狀態樣式 */
+.task-card .task-meta {
+  display: flex; /* 使用 flexbox 方便對齊 */
+  justify-content: space-between;
+  align-items: center;
+}
+
+.deadline-status {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  margin-left: 12px;
+}
+
+/* 警告狀態 (黃色) */
+.status-warning {
+  background-color: #fffbeb;
+  color: #b45309;
+}
+
+/* 危險/過期狀態 (紅色) */
+.status-danger {
+  background-color: #ffebeb;
+  color: #d92d20;
+}

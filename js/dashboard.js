@@ -85,35 +85,56 @@ document.addEventListener("DOMContentLoaded", () => {
         '<p class="empty-list-text">太棒了，目前沒有待辦任務！</p>';
       return;
     }
+
     tasksForCourse.forEach((task) => {
       const taskCard = document.createElement("div");
       taskCard.className = `task-card ${task.completed ? "completed" : ""}`;
       taskCard.dataset.id = task.id;
       taskCard.dataset.actualTime = task.actualTime || 0;
+
+      // ★★★ 核心改造：日期判斷邏輯 ★★★
+      let deadlineStatusHTML = "";
+      if (task.deadline) {
+        const today = new Date();
+        const deadlineDate = new Date(task.deadline);
+        // 將今天的時間設為 00:00:00 來做比較，避免時區和時間影響天數計算
+        today.setHours(0, 0, 0, 0);
+
+        const diffTime = deadlineDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (!task.completed && diffDays < 0) {
+          deadlineStatusHTML = `<span class="deadline-status status-danger">已過期</span>`;
+        } else if (!task.completed && diffDays <= 3) {
+          deadlineStatusHTML = `<span class="deadline-status status-warning">即將到期</span>`;
+        }
+      }
+
+      // ★★★ 核心改造：將 deadlineStatusHTML 加入到卡片模板中 ★★★
       taskCard.innerHTML = `
-                <div class="task-card-header">
-                    <input type="checkbox" class="task-checkbox" data-task-id="${
-                      task.id
-                    }" ${task.completed ? "checked" : ""}>
-                    <h3>${task.title}</h3>
-                    <button class="btn-delete" data-task-id="${
-                      task.id
-                    }">×</button>
-                </div>
-                <p class="task-meta">截止日期：${task.deadline || "未設定"}</p>
-                <div class="task-time-info">
-                    <span>預計 ${task.estimatedTime || "-"} 分鐘 / 已花費 ${
+            <div class="task-card-header">
+                <input type="checkbox" class="task-checkbox" data-task-id="${
+                  task.id
+                }" ${task.completed ? "checked" : ""}>
+                <h3>${task.title}</h3>
+                <button class="btn-delete" data-task-id="${task.id}">×</button>
+            </div>
+            <p class="task-meta">
+                <span>截止日期：${task.deadline || "未設定"}</span>
+                ${deadlineStatusHTML}
+            </p>
+            <div class="task-time-info">
+                <span>預計 ${task.estimatedTime || "-"} 分鐘 / 已花費 ${
         task.actualTime || 0
       } 分鐘</span>
-                    <button class="btn-add-time" data-task-id="${
-                      task.id
-                    }">增加時間</button>
-                </div>
-            `;
+                <button class="btn-add-time" data-task-id="${
+                  task.id
+                }">增加時間</button>
+            </div>
+        `;
       taskListContainer.appendChild(taskCard);
     });
   }
-
   // --- 5. 資料處理函式 ---
   async function loadCourses() {
     try {
