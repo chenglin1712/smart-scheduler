@@ -14,7 +14,7 @@
           <a href="dashboard.html">儀表板</a>
           <a href="gpa.html" class="active">GPA 計算機</a>
           <a href="report.html">數據報告</a>
-          <a href="#">登出</a>
+          <a href="#" id="logout-btn">登出</a>
         </nav>
       </div>
     </header>
@@ -43,7 +43,7 @@
                 <input type="number" id="grade" placeholder="85" />
               </div>
             </div>
-            <button type="submit" class="btn-primary">新增</button>
+            <button type="submit" class="btn btn-primary">新增</button>
           </form>
         </div>
         <div class="gpa-result-container">
@@ -52,16 +52,7 @@
             <p class="gpa-label">你的預估 GPA</p>
             <p class="gpa-value">3.85</p>
           </div>
-          <div class="course-grade-list">
-            <div class="course-item">
-              <span>網頁程式設計 (3學分)</span>
-              <span>成績: 88</span>
-            </div>
-            <div class="course-item">
-              <span>資料庫管理 (3學分)</span>
-              <span>成績: 82</span>
-            </div>
-          </div>
+          <div class="course-grade-list"></div>
         </div>
       </div>
     </main>

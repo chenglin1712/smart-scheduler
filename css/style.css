@@ -1,17 +1,30 @@
-/* css/style.css */
+/* =================================
+   SMART SCHEDULER - REFACTORED STYLES
+   ================================= */
 
-/* 1. 全域變數與基本設定 (設計的靈魂) */
+/* =================================
+   1. Global Styles & CSS Variables
+   ================================= */
 :root {
-  --primary-color: #0071e3; /* 主要互動顏色 (Apple 藍) */
-  --background-color: #ffffff; /* 背景色改為純白，更簡潔 */
-  --content-bg-color: #f5f5f7; /* 內容區塊的淺灰背景 */
-  --text-color: #1d1d1f; /* 主要文字顏色 (深灰) */
-  --text-color-light: #515154; /* 次要文字顏色 (淺灰) */
-  --border-color: #d2d2d7; /* 邊框顏色 */
+  --primary-color: #0071e3;
+  --background-color: #f5f5f7; /* 使用蘋果官網的淺灰色背景 */
+  --content-bg-color: #ffffff; /* 卡片和內容區塊使用純白，增加對比和層次 */
+  --text-color: #1d1d1f;
+  --text-color-light: #515154;
+  --border-color: #d2d2d7;
   --font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI",
     Roboto, Arial, "Noto Sans TC", sans-serif;
-  --radius-m: 12px; /* 中等圓角 */
-  --radius-l: 18px; /* 大型圓角 */
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 18px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
@@ -22,15 +35,56 @@ body {
   padding-top: 60px; /* 為固定導覽列留出空間 */
 }
 
-/* 2. 共用導覽列 (Navbar) */
+h1 {
+  font-size: 40px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-top: 0;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 20px 0;
+}
+
+.main-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 40px auto 60px auto;
+  padding: 0 40px;
+  box-sizing: border-box;
+}
+
+.empty-list-text {
+  color: var(--text-color-light);
+  text-align: center;
+  padding: 20px 0;
+  font-size: 14px;
+}
+
+/* =================================
+   2. Navbar
+   ================================= */
 .navbar {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 60px;
-  background-color: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px); /* 模糊背景 (高科技感) */
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-color);
   display: flex;
@@ -41,8 +95,8 @@ body {
 
 .nav-container {
   width: 100%;
-  max-width: 1024px;
-  padding: 0 20px;
+  max-width: 1200px;
+  padding: 0 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -68,106 +122,208 @@ body {
   color: var(--primary-color);
 }
 
-/* 3. 主要內容容器 */
-.main-container {
-  width: 100%;
-  max-width: 1024px;
-  margin: 40px auto; /* 上下邊距 */
-  padding: 0 20px;
-}
-
-h1 {
-  font-size: 40px;
-  font-weight: 600;
-  margin-bottom: 16px;
-}
-
-/* css/style.css (追加在檔案最後) */
-
-/* 4. 登入頁面樣式 */
-.login-wrapper {
-  max-width: 400px;
-  margin: 80px auto;
+/* =================================
+   3. Unified Button System
+   ================================= */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: var(--radius-m);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
   text-align: center;
 }
 
-.subtitle {
-  font-size: 18px;
-  color: var(--text-color-light);
-  margin-bottom: 40px;
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+.btn-primary:hover {
+  background-color: #0066cc;
+  transform: translateY(-1px);
+}
+.btn-primary[disabled] {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+  transform: none;
 }
 
-.login-form .form-group {
+.btn-secondary {
+  background-color: #e8e8e8;
+  color: var(--text-color);
+}
+.btn-secondary:hover {
+  background-color: #dcdcdc;
+}
+
+.btn-delete {
+  background-color: #fceeee;
+  color: #d92d20;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border: none;
+  padding: 0;
+}
+.btn-delete:hover {
+  background-color: #f7d3d3;
+}
+
+.btn-add {
+  background-color: #eef6ff;
+  color: var(--primary-color);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  padding: 0;
+}
+.btn-add:hover {
+  background-color: #dbeaff;
+  transform: scale(1.1);
+}
+
+.btn-add-time {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 4px 10px;
+  border-radius: var(--radius-m);
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.btn-add-time:hover {
+  background-color: #f0f0f0;
+  border-color: #c0c0c0;
+}
+
+.btn-ai {
+  width: 100%;
+  background: linear-gradient(90deg, #6366f1, #a855f7);
+  color: white;
+}
+.btn-ai:hover {
+  transform: scale(1.02);
+}
+
+/* =================================
+   4. Forms & Modal
+   ================================= */
+.form-group {
   text-align: left;
   margin-bottom: 20px;
 }
-
-.login-form label {
+.form-group label {
   display: block;
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 8px;
 }
-
-.login-form input {
+.form-group input {
   width: 100%;
   padding: 14px;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-m);
   font-size: 16px;
-  box-sizing: border-box; /* 確保 padding 不會影響寬度 */
+  box-sizing: border-box;
+}
+.form-group-inline {
+  display: flex;
+  gap: 20px;
+}
+.form-group-inline .form-group {
+  flex: 1;
+}
+.error-text {
+  color: #d92d20;
+  font-weight: 500;
+  min-height: 20px;
 }
 
-.btn-primary {
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  padding: 16px;
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: var(--radius-m);
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  margin-top: 10px;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+.modal-overlay.show {
+  display: flex;
+}
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: var(--radius-l);
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 30px;
 }
 
-.btn-primary:hover {
-  background-color: #005bb5; /* 加深藍色 */
+/* =================================
+   5. Page: Login
+   ================================= */
+.login-wrapper {
+  max-width: 400px;
+  margin: 80px auto;
+  text-align: center;
 }
-
-.form-footer {
+.login-wrapper .subtitle {
+  font-size: 18px;
+  color: var(--text-color-light);
+  margin-bottom: 40px;
+}
+.login-wrapper .form-footer {
   margin-top: 24px;
   font-size: 14px;
   color: var(--text-color-light);
 }
-.form-footer a {
+.login-wrapper .form-footer a {
   color: var(--primary-color);
   text-decoration: none;
   font-weight: 500;
 }
 
-/* css/style.css (追加在檔案最後) */
-
-/* 5. 儀表板頁面樣式 */
+/* =================================
+   6. Page: Dashboard
+   ================================= */
 .dashboard-layout {
-  display: flex;
-  gap: 30px; /* 左右兩欄的間距 */
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 40px;
   align-items: flex-start;
 }
 
-.sidebar {
-  width: 240px;
-  flex-shrink: 0; /* 防止側邊欄被壓縮 */
-}
-
-.sidebar-section h2 {
-  font-size: 18px;
+.sidebar .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--border-color);
   margin-bottom: 16px;
 }
-
 .course-list {
   list-style: none;
   padding: 0;
@@ -178,26 +334,25 @@ h1 {
   padding: 10px 16px;
   text-decoration: none;
   color: var(--text-color-light);
-  border-radius: var(--radius-m);
+  border-radius: var(--radius-s);
   transition: background-color 0.2s ease, color 0.2s ease;
   font-weight: 500;
+  margin-bottom: 4px;
 }
 .course-list li a:hover {
-  background-color: var(--content-bg-color);
+  background-color: #e8e8e8;
   color: var(--text-color);
 }
 .course-list li a.active {
-  background-color: #e3f0ff; /* 淺藍色背景 */
-  color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: white;
 }
 
-.main-content {
-  flex-grow: 1; /* 主內容區填滿剩餘空間 */
-}
-.main-content h2 {
-  font-size: 24px;
-  font-weight: 600;
-  margin-top: 0;
+.main-content .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
 .task-card {
@@ -206,64 +361,123 @@ h1 {
   border-radius: var(--radius-l);
   margin-bottom: 16px;
   border: 1px solid #e1e1e3;
+  transition: all 0.2s ease;
 }
-.task-card h3 {
-  margin: 0 0 8px 0;
-  font-size: 18px;
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
-.task-meta {
-  margin: 0 0 16px 0;
-  font-size: 14px;
+.task-card.completed h3,
+.task-card.completed .task-meta,
+.task-card.completed .task-time-info {
+  text-decoration: line-through;
   color: var(--text-color-light);
 }
-.task-status {
-  display: inline-block;
+.task-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.task-card-header h3 {
+  flex-grow: 1;
+}
+.task-card .task-checkbox {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.task-meta {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-color-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.deadline-status {
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 600;
   border-radius: 20px;
 }
-.status-urgent {
+.status-warning {
+  background-color: #fffbeb;
+  color: #b45309;
+}
+.status-danger {
   background-color: #ffebeb;
   color: #d92d20;
 }
-.status-normal {
-  background-color: #e3f0ff;
-  color: var(--primary-color);
+
+.task-time-info {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e8e8e8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: var(--text-color-light);
 }
 
-/* css/style.css (追加在檔案最後) */
+.document-management {
+  background-color: var(--content-bg-color);
+  padding: 20px;
+  border-radius: var(--radius-l);
+  margin-bottom: 24px;
+}
+.document-list {
+  margin-bottom: 16px;
+}
+.document-item {
+  background-color: #fff;
+  padding: 12px 16px;
+  border-radius: var(--radius-m);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+}
+.document-upload-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+#file-name-display {
+  font-size: 14px;
+  color: var(--text-color-light);
+}
 
-/* 6. GPA 計算機頁面樣式 */
-.gpa-layout {
+/* =================================
+   7. Page: GPA Calculator & Report
+   ================================= */
+.gpa-layout,
+.report-container {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 兩欄佈局 */
-  gap: 40px;
+  gap: 30px;
   align-items: flex-start;
+}
+.gpa-layout {
+  grid-template-columns: 1fr 1fr;
+}
+.report-container {
+  grid-template-columns: 1fr;
+}
+.report-grid-2 {
+  grid-template-columns: 1fr 1fr;
 }
 
 .gpa-form-container,
-.gpa-result-container {
+.gpa-result-container,
+.chart-card {
   background-color: var(--content-bg-color);
   padding: 30px;
   border-radius: var(--radius-l);
+  box-shadow: var(--shadow-sm);
 }
-
-.gpa-form-container h2,
-.gpa-result-container h2 {
-  font-size: 24px;
-  margin-top: 0;
-  margin-bottom: 24px;
-}
-
-.form-group-inline {
-  display: flex;
-  gap: 20px;
-}
-.form-group-inline .form-group {
-  flex: 1;
-}
-
 .gpa-display {
   text-align: center;
   padding: 20px;
@@ -282,304 +496,18 @@ h1 {
   font-weight: 600;
   color: var(--primary-color);
 }
-
 .course-grade-list .course-item {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 16px 0;
   border-bottom: 1px solid var(--border-color);
 }
 .course-grade-list .course-item:last-child {
   border-bottom: none;
 }
-
-/* css/style.css (追加在檔案最後) */
-
-/* 7. GPA 計算機動態樣式 */
-.course-item {
-  align-items: center; /* 垂直置中 */
-}
 .course-item-actions {
   display: flex;
   align-items: center;
   gap: 16px;
-}
-.btn-delete {
-  background-color: #fceeee;
-  color: #d92d20;
-  border: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%; /* 圓形 */
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  line-height: 24px; /* 垂直置中文字 */
-  text-align: center;
-  transition: background-color 0.2s ease;
-}
-.btn-delete:hover {
-  background-color: #f7d3d3;
-}
-.empty-list-text {
-  color: var(--text-color-light);
-  text-align: center;
-  padding: 20px 0;
-}
-/* css/style.css (追加在檔案最後) */
-
-/* 8. 儀表板動態樣式 */
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-.section-header h2 {
-  margin: 0;
-  font-size: 18px;
-}
-#current-course-title {
-  font-size: 24px;
-  font-weight: 600;
-}
-.btn-add {
-  background-color: var(--content-bg-color);
-  color: var(--text-color-light);
-  border: 1px dashed var(--border-color);
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.btn-add:hover {
-  background-color: #e3f0ff;
-  color: var(--primary-color);
-  border-color: var(--primary-color);
-}
-.btn-primary[disabled] {
-  background-color: var(--border-color);
-  cursor: not-allowed;
-}
-
-/* 任務卡片勾選框 */
-.task-card .task-checkbox {
-  margin-right: 12px;
-  width: 20px;
-  height: 20px;
-}
-.task-card-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-}
-.task-card-header h3 {
-  margin: 0;
-  flex-grow: 1;
-}
-.task-card.completed h3,
-.task-card.completed .task-meta {
-  text-decoration: line-through;
-  color: var(--text-color-light);
-}
-
-/* 9. Modal 彈出視窗樣式 */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: none; /* 平時隱藏 */
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-}
-.modal-overlay.show {
-  display: flex; /* 透過 JS 加入 .show 來顯示 */
-}
-.modal-content {
-  background-color: white;
-  padding: 30px;
-  border-radius: var(--radius-l);
-  width: 100%;
-  max-width: 450px;
-}
-.modal-content h2 {
-  margin-top: 0;
-}
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 30px;
-}
-.btn-secondary {
-  padding: 12px 24px;
-  background-color: var(--content-bg-color);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-m);
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-/* css/style.css (追加在檔案最後) */
-
-/* 10. 報告頁面樣式 */
-.report-container {
-  display: grid;
-  grid-template-columns: 1fr; /* 現在只有一張圖表，先設定為一欄 */
-  gap: 30px;
-}
-
-.chart-card {
-  background-color: #fff;
-  padding: 30px;
-  border-radius: var(--radius-l);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.chart-card h2 {
-  margin-top: 0;
-  text-align: center;
-  margin-bottom: 24px;
-}
-/* 11. 錯誤訊息樣式 */
-.error-text {
-  color: #d92d20; /* 紅色 */
-  font-weight: 500;
-  min-height: 20px; /* 佔一個高度，避免畫面跳動 */
-}
-
-/* css/style.css (追加在檔案最後) */
-/* 12. 任務時間資訊樣式 */
-.task-time-info {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e8e8e8;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 14px;
-  color: var(--text-color-light);
-}
-.btn-add-time {
-  background-color: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-color);
-  padding: 4px 10px;
-  border-radius: var(--radius-m);
-  cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s;
-}
-.btn-add-time:hover {
-  background-color: var(--content-bg-color);
-  border-color: #c0c0c0;
-}
-
-/* css/style.css (追加在檔案最後) */
-/* 13. 報告頁面網格樣式 */
-.report-grid-2 {
-  grid-template-columns: 1fr 1fr;
-}
-
-/* 14. 任務截止日期狀態樣式 */
-.task-card .task-meta {
-  display: flex; /* 使用 flexbox 方便對齊 */
-  justify-content: space-between;
-  align-items: center;
-}
-
-.deadline-status {
-  display: inline-block;
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 20px;
-  margin-left: 12px;
-}
-
-/* 警告狀態 (黃色) */
-.status-warning {
-  background-color: #fffbeb;
-  color: #b45309;
-}
-
-/* 危險/過期狀態 (紅色) */
-.status-danger {
-  background-color: #ffebeb;
-  color: #d92d20;
-}
-
-/* 15. 文件管理區塊樣式 */
-.document-management {
-  background-color: var(--content-bg-color);
-  padding: 20px;
-  border-radius: var(--radius-l);
-  margin-bottom: 24px;
-}
-
-.document-management h3 {
-  margin-top: 0;
-  margin-bottom: 16px;
-  font-weight: 600;
-}
-
-.document-list {
-  margin-bottom: 16px;
-}
-
-.document-item {
-  background-color: #fff;
-  padding: 12px 16px;
-  border-radius: var(--radius-m);
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-}
-
-.document-upload-area {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-#file-name-display {
-  font-size: 14px;
-  color: var(--text-color-light);
-}
-
-.document-management hr {
-  border: none;
-  border-top: 1px solid var(--border-color);
-  margin: 20px 0;
-}
-
-.ai-analyze-area .btn-ai {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(90deg, #6366f1, #a855f7);
-  color: white;
-  border: none;
-  border-radius: var(--radius-m);
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.ai-analyze-area .btn-ai:hover {
-  transform: scale(1.02);
-}
-
-.task-header {
-  margin-top: 24px;
 }
