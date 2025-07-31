@@ -35,6 +35,37 @@
         <section class="main-content">
           <div class="section-header">
             <h2 id="current-course-title">請選擇一門課程</h2>
+          </div>
+
+          <div
+            id="document-management-section"
+            class="document-management"
+            style="display: none"
+          >
+            <h3>文件管理</h3>
+            <div id="document-list" class="document-list"></div>
+            <div class="document-upload-area">
+              <input
+                type="file"
+                id="document-upload-input"
+                accept=".pdf"
+                style="display: none"
+              />
+              <label for="document-upload-input" class="btn-secondary"
+                >選擇檔案...</label
+              >
+              <button id="upload-doc-btn" class="btn-primary">上傳文件</button>
+              <span id="file-name-display"></span>
+            </div>
+            <hr />
+            <div class="ai-analyze-area">
+              <button id="analyze-btn" class="btn-ai">
+                🚀 讓 AI 綜合分析所有文件
+              </button>
+            </div>
+          </div>
+          <div class="section-header task-header">
+            <h2>待辦任務</h2>
             <button id="add-task-btn" class="btn-primary" disabled>
               新增任務
             </button>
