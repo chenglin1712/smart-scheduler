@@ -44,6 +44,18 @@ async function startServer() {
       res.send("Scheduler Pro Backend is running!");
     });
 
+    // 引入使用者路由
+    const userRoutes = require("./routes/users");
+    app.use("/api/users", userRoutes);
+
+    // 引入課程路由
+    const courseRoutes = require("./routes/courses");
+    app.use("/api/courses", courseRoutes);
+
+    // ★★★ 新增這兩行：引入並使用任務路由 ★★★
+    const taskRoutes = require("./routes/tasks");
+    app.use("/api/tasks", taskRoutes);
+
     const userRoutes = require("./routes/users");
     app.use("/api/users", userRoutes);
 

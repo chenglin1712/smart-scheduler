@@ -46,4 +46,45 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
+// ★★★ 新增：獲取特定課程下的所有任務 ★★★
+// --- GET /api/courses/:courseId/tasks ---
+router.get("/:courseId/tasks", auth, async (req, res) => {
+  try {
+    const db = req.db;
+    // 透過 URL 傳入的 courseId 來查詢 Tasks 資料表
+    const tasks = await db.all("SELECT * FROM Tasks WHERE groupId = ?", [
+      req.params.courseId,
+    ]);
+    res.json(tasks);
+  } catch (error) {
+    console.error("獲取任務時發生錯誤:", error);
+    res.status(500).json({ message: "伺服器內部錯誤" });
+  }
+});
+
+// ★★★ 新增：為特定課程新增一個任務 ★★★
+// --- POST /api/courses/:courseId/tasks ---
+router.post("/:courseId/tasks", auth, async (req, res) => {
+  const { title, deadline } = req.body;
+  if (!title) {
+    return res.status(400).json({ message: "任務標題為必填欄位。" });
+  }
+
+  try {
+    const db = req.db;
+    const result = await db.run(
+      "INSERT INTO Tasks (title, deadline, groupId) VALUES (?, ?, ?)",
+      [title, deadline || null, req.params.courseId]
+    );
+
+    const newTask = await db.get("SELECT * FROM Tasks WHERE id = ?", [
+      result.lastID,
+    ]);
+    res.status(201).json(newTask);
+  } catch (error) {
+    console.error("新增任務時發生錯誤:", error);
+    res.status(500).json({ message: "伺服器內部錯誤" });
+  }
+});
+
 module.exports = router;
