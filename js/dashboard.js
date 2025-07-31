@@ -1,18 +1,16 @@
-// js/dashboard.js (AI 介面最終版)
 document.addEventListener("DOMContentLoaded", () => {
-  // --- 1. DOM 元素 (加入新元素) ---
+  // --- 1. DOM 元素 ---
   const courseList = document.getElementById("course-list");
   const taskListContainer = document.getElementById("task-list-container");
   const currentCourseTitle = document.getElementById("current-course-title");
   const addCourseBtn = document.getElementById("add-course-btn");
   const addTaskBtn = document.getElementById("add-task-btn");
-  const modal = document.getElementById("modal"); // ... (其他 modal 元素不變)
-  const modalTitle = document.getElementById("modal-title"),
-    modalForm = document.getElementById("modal-form"),
-    modalSaveBtn = document.getElementById("modal-save-btn"),
-    modalCancelBtn = document.getElementById("modal-cancel-btn");
+  const modal = document.getElementById("modal");
+  const modalTitle = document.getElementById("modal-title");
+  const modalForm = document.getElementById("modal-form");
+  const modalSaveBtn = document.getElementById("modal-save-btn");
+  const modalCancelBtn = document.getElementById("modal-cancel-btn");
   const logoutButton = document.getElementById("logout-btn");
-  // ★ 新增文件管理區塊的元素
   const docManagementSection = document.getElementById(
     "document-management-section"
   );
@@ -22,31 +20,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const analyzeBtn = document.getElementById("analyze-btn");
   const fileNameDisplay = document.getElementById("file-name-display");
 
-  // --- 2. 應用程式狀態 (加入 documents) ---
+  // --- 2. 應用程式狀態 ---
   const state = {
     courses: [],
     tasks: [],
-    documents: [], // ★ 新增
+    documents: [],
     selectedCourseId: null,
     token: localStorage.getItem("token"),
   };
 
-  // --- 3. API 請求函式 (★ 升級版，可處理 JSON 和 FormData) ★ ---
+  // --- 3. API 請求函式 ---
   async function fetchAPI(method, url, body = null) {
     const headers = { Authorization: `Bearer ${state.token}` };
     const config = { method, headers };
-
     if (body) {
       if (body instanceof FormData) {
-        // 如果是 FormData，瀏覽器會自動設定 Content-Type，我們不能手動設定
         config.body = body;
       } else {
-        // 否則，我們假設是 JSON
         headers["Content-Type"] = "application/json";
         config.body = JSON.stringify(body);
       }
     }
-    // ... (其餘錯誤處理邏輯不變)
     const response = await fetch(`http://localhost:5001${url}`, config);
     if (!response.ok) {
       if (response.status === 401) logout();
@@ -63,153 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return response.status === 204 ? null : response.json();
   }
 
-  // --- 4. 渲染函式 (加入 renderDocuments) ---
-  function renderCourses() {
-    /* ... 不變 ... */
-  }
-  function renderTasks() {
-    /* ... 不變 ... */
-  }
-  // ★ 新增：渲染文件列表的函式
-  function renderDocuments() {
-    documentList.innerHTML = "";
-    if (state.documents.length === 0) {
-      documentList.innerHTML =
-        '<p class="empty-list-text">此課程尚無文件。</p>';
-    } else {
-      state.documents.forEach((doc) => {
-        const docItem = document.createElement("div");
-        docItem.className = "document-item";
-        docItem.innerHTML = `<span>📄 ${doc.fileName}</span>`;
-        documentList.appendChild(docItem);
-      });
-    }
-  }
-
-  // --- 5. 資料處理函式 (加入 loadDocuments) ---
-  async function loadCourses() {
-    /* ... 不變 ... */
-  }
-  async function loadTasks(courseId) {
-    /* ... 不變 ... */
-  }
-  // ★ 新增：載入特定課程的文件的函式
-  async function loadDocuments(courseId) {
-    try {
-      const documents = await fetchAPI(
-        "GET",
-        `/api/documents/course/${courseId}`
-      );
-      state.documents = documents;
-      renderDocuments();
-    } catch (error) {
-      alert(`載入文件列表失敗: ${error.message}`);
-    }
-  }
-  // ... (openModal, closeModal, handleSave for courses/tasks 不變)
-
-  // --- 6. 登出與初始化 ---
-  function logout() {
-    /* ... 不變 ... */
-  }
-
-  async function init() {
-    if (!state.token) {
-      logout();
-      return;
-    }
-
-    // 課程列表點擊事件 (★ 改造：加入載入文件)
-    courseList.addEventListener("click", async (e) => {
-      if (e.target.tagName === "A") {
-        e.preventDefault();
-        const courseId = parseInt(e.target.dataset.id);
-        state.selectedCourseId = courseId;
-        docManagementSection.style.display = "block"; // 顯示文件管理區塊
-
-        renderCourses();
-        // 同時載入任務和文件
-        await Promise.all([loadTasks(courseId), loadDocuments(courseId)]);
-      }
-    });
-
-    // ★ 新增：文件上傳輸入框變動事件
-    documentUploadInput.addEventListener("change", () => {
-      if (documentUploadInput.files.length > 0) {
-        fileNameDisplay.textContent = documentUploadInput.files[0].name;
-      } else {
-        fileNameDisplay.textContent = "";
-      }
-    });
-
-    // ★ 新增：文件上傳按鈕點擊事件
-    uploadDocBtn.addEventListener("click", async () => {
-      const file = documentUploadInput.files[0];
-      if (!file || !state.selectedCourseId) {
-        alert("請先選擇課程和一個要上傳的檔案。");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("documentFile", file);
-
-      try {
-        uploadDocBtn.textContent = "上傳中...";
-        uploadDocBtn.disabled = true;
-        await fetchAPI(
-          "POST",
-          `/api/documents/upload/${state.selectedCourseId}`,
-          formData
-        );
-        fileNameDisplay.textContent = "";
-        documentUploadInput.value = ""; // 清空 file input
-        await loadDocuments(state.selectedCourseId); // 重新整理文件列表
-      } catch (error) {
-        alert(`檔案上傳失敗: ${error.message}`);
-      } finally {
-        uploadDocBtn.textContent = "上傳文件";
-        uploadDocBtn.disabled = false;
-      }
-    });
-
-    // ★ 新增：AI 分析按鈕點擊事件
-    analyzeBtn.addEventListener("click", async () => {
-      if (!state.selectedCourseId) return;
-
-      if (
-        confirm(
-          "確定要讓 AI 綜合分析此課程的所有文件嗎？這個過程可能需要一點時間。"
-        )
-      ) {
-        try {
-          analyzeBtn.textContent = "🧠 AI 分析中...";
-          analyzeBtn.disabled = true;
-          const result = await fetchAPI(
-            "POST",
-            `/api/analyze/course/${state.selectedCourseId}`
-          );
-          alert(result.message); // 顯示成功訊息
-          await loadTasks(state.selectedCourseId); // 分析完後，重新整理任務列表
-        } catch (error) {
-          alert(`AI 分析失敗: ${error.message}`);
-        } finally {
-          analyzeBtn.textContent = "🚀 讓 AI 綜合分析所有文件";
-          analyzeBtn.disabled = false;
-        }
-      }
-    });
-
-    // ... (其他事件監聽器不變)
-
-    await loadCourses();
-    // 初始隱藏文件管理區塊
-    docManagementSection.style.display = "none";
-  }
-
-  // 執行初始化
-  init();
-
-  // 為了讓上面省略的程式碼能運作，補上之前已完成的函式
+  // --- 4. 渲染函式 (此區塊無變動) ---
   function renderCourses() {
     courseList.innerHTML = "";
     if (state.courses.length === 0) {
@@ -257,9 +105,9 @@ document.addEventListener("DOMContentLoaded", () => {
         task.title
       }</h3><button class="btn-delete" data-task-id="${
         task.id
-      }">×</button></div><p class="task-meta">截止日期：${
+      }">×</button></div><p class="task-meta"><span>截止日期：${
         task.deadline || "未設定"
-      }</p><div class="task-time-info"><span>預計 ${
+      }</span></p><div class="task-time-info"><span>預計 ${
         task.estimatedTime || "-"
       } 分鐘 / 已花費 ${
         task.actualTime || 0
@@ -269,6 +117,22 @@ document.addEventListener("DOMContentLoaded", () => {
       taskListContainer.appendChild(taskCard);
     });
   }
+  function renderDocuments() {
+    documentList.innerHTML = "";
+    if (state.documents.length === 0) {
+      documentList.innerHTML =
+        '<p class="empty-list-text">此課程尚無文件。</p>';
+    } else {
+      state.documents.forEach((doc) => {
+        const docItem = document.createElement("div");
+        docItem.className = "document-item";
+        docItem.innerHTML = `<span>📄 ${doc.fileName}</span>`;
+        documentList.appendChild(docItem);
+      });
+    }
+  }
+
+  // --- 5. 資料處理函式 (此區塊無變動) ---
   async function loadCourses() {
     try {
       state.courses = await fetchAPI("GET", "/api/courses");
@@ -285,8 +149,235 @@ document.addEventListener("DOMContentLoaded", () => {
       alert(`載入任務失敗: ${error.message}`);
     }
   }
+  async function loadDocuments(courseId) {
+    try {
+      const documents = await fetchAPI(
+        "GET",
+        `/api/documents/course/${courseId}`
+      );
+      state.documents = documents;
+      renderDocuments();
+    } catch (error) {
+      alert(`載入文件列表失敗: ${error.message}`);
+    }
+  }
+  function openModal(type) {
+    modalForm.innerHTML = "";
+    if (type === "course") {
+      modalTitle.textContent = "新增課程";
+      modalForm.innerHTML = `<div class="form-group"><label for="course-name">課程名稱</label><input type="text" id="course-name" required></div>`;
+    } else if (type === "task") {
+      modalTitle.textContent = "新增任務";
+      modalForm.innerHTML = `<div class="form-group"><label for="task-title">任務標題</label><input type="text" id="task-title" required></div><div class="form-group"><label for="task-deadline">截止日期</label><input type="date" id="task-deadline"></div><div class="form-group"><label for="task-estimated-time">預計花費時間 (分鐘)</label><input type="number" id="task-estimated-time" min="0"></div>`;
+    }
+    modal.classList.add("show");
+  }
+  function closeModal() {
+    modal.classList.remove("show");
+  }
+  async function handleSave() {
+    const formType = modalTitle.textContent.includes("課程")
+      ? "course"
+      : "task";
+    if (formType === "course") {
+      const courseName = document.getElementById("course-name").value.trim();
+      if (!courseName) return;
+      try {
+        await fetchAPI("POST", "/api/courses", { name: courseName });
+        await loadCourses();
+      } catch (error) {
+        alert(`儲存課程失敗: ${error.message}`);
+      }
+    } else if (formType === "task") {
+      const title = document.getElementById("task-title").value.trim();
+      const deadline = document.getElementById("task-deadline").value;
+      const estimatedTime =
+        parseInt(document.getElementById("task-estimated-time").value) || null;
+      if (!title) return;
+      try {
+        await fetchAPI("POST", `/api/courses/${state.selectedCourseId}/tasks`, {
+          title,
+          deadline,
+          estimatedTime,
+        });
+        await loadTasks(state.selectedCourseId);
+        renderCourses();
+      } catch (error) {
+        alert(`儲存任務失敗: ${error.message}`);
+      }
+    }
+    closeModal();
+  }
+
+  // --- 6. 登出與初始化 ---
   function logout() {
     localStorage.removeItem("token");
     window.location.href = "index.html";
   }
+
+  async function init() {
+    if (!state.token) {
+      logout();
+      return;
+    }
+
+    // ★★★ 以下為本次主要修改區域 ★★★
+
+    // 登出與 Modal 的事件監聽器 (保持不變)
+    logoutButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      logout();
+    });
+    addCourseBtn.addEventListener("click", () => openModal("course"));
+    addTaskBtn.addEventListener("click", () => {
+      if (state.selectedCourseId) {
+        openModal("task");
+      }
+    });
+    modalCancelBtn.addEventListener("click", closeModal);
+    modalSaveBtn.addEventListener("click", handleSave);
+
+    // 課程列表點擊事件 (保持不變)
+    courseList.addEventListener("click", async (e) => {
+      if (e.target.tagName === "A") {
+        e.preventDefault();
+        const courseId = parseInt(e.target.dataset.id);
+        state.selectedCourseId = courseId;
+        docManagementSection.style.display = "block";
+        renderCourses();
+        await Promise.all([loadTasks(courseId), loadDocuments(courseId)]);
+      }
+    });
+
+    // ★ 修正 #1：監聽檔案選擇的動作，並控制按鈕狀態 ★
+    documentUploadInput.addEventListener("change", () => {
+      if (documentUploadInput.files.length > 0) {
+        const file = documentUploadInput.files[0];
+        fileNameDisplay.textContent = file.name;
+        uploadDocBtn.disabled = false; // 啟用上傳按鈕
+      } else {
+        fileNameDisplay.textContent = "";
+        uploadDocBtn.disabled = true; // 禁用上傳按鈕
+      }
+    });
+
+    // ★ 修正 #2：優化上傳按鈕的完整流程 ★
+    uploadDocBtn.addEventListener("click", async () => {
+      const file = documentUploadInput.files[0];
+      if (!file || !state.selectedCourseId) {
+        alert("請先選擇課程和一個要上傳的檔案。");
+        return;
+      }
+      const formData = new FormData();
+      formData.append("documentFile", file);
+      try {
+        uploadDocBtn.textContent = "上傳中...";
+        uploadDocBtn.disabled = true; // 上傳時禁用
+        await fetchAPI(
+          "POST",
+          `/api/documents/upload/${state.selectedCourseId}`,
+          formData
+        );
+
+        // 成功後，重設 UI 到初始狀態
+        fileNameDisplay.textContent = "";
+        documentUploadInput.value = "";
+        await loadDocuments(state.selectedCourseId);
+      } catch (error) {
+        alert(`檔案上傳失敗: ${error.message}`);
+      } finally {
+        // 無論成功或失敗，都恢復按鈕文字
+        uploadDocBtn.textContent = "上傳文件";
+        // 注意：按鈕的禁用狀態在成功後應保持 disabled，所以在這裡不用改回 false
+        // 但為了防止失敗時卡住，我們在這裡重設它
+        if (documentUploadInput.files.length === 0) {
+          uploadDocBtn.disabled = true;
+        }
+      }
+    });
+
+    // AI 分析按鈕點擊事件 (保持不變)
+    analyzeBtn.addEventListener("click", async () => {
+      if (!state.selectedCourseId) return;
+      if (
+        confirm(
+          "確定要讓 AI 綜合分析此課程的所有文件嗎？這個過程可能需要一點時間。"
+        )
+      ) {
+        try {
+          analyzeBtn.textContent = "🧠 AI 分析中...";
+          analyzeBtn.disabled = true;
+          const result = await fetchAPI(
+            "POST",
+            `/api/analyze/course/${state.selectedCourseId}`
+          );
+          alert(result.message);
+          await loadTasks(state.selectedCourseId);
+        } catch (error) {
+          alert(`AI 分析失敗: ${error.message}`);
+        } finally {
+          analyzeBtn.textContent = "🚀 讓 AI 綜合分析所有文件";
+          analyzeBtn.disabled = false;
+        }
+      }
+    });
+
+    // 任務列表點擊事件 (保持不變)
+    taskListContainer.addEventListener("click", async (e) => {
+      const target = e.target;
+      const taskId = target.dataset.taskId;
+      if (!taskId) return;
+      if (target.classList.contains("task-checkbox")) {
+        try {
+          const isCompleted = target.checked;
+          await fetchAPI("PATCH", `/api/tasks/${taskId}`, {
+            completed: isCompleted,
+          });
+          target
+            .closest(".task-card")
+            .classList.toggle("completed", isCompleted);
+        } catch (error) {
+          alert(`更新任務失敗: ${error.message}`);
+          target.checked = !target.checked;
+        }
+      }
+      if (target.classList.contains("btn-delete")) {
+        if (confirm("確定要刪除這個任務嗎？")) {
+          try {
+            await fetchAPI("DELETE", `/api/tasks/${taskId}`);
+            await loadTasks(state.selectedCourseId);
+            renderCourses();
+          } catch (error) {
+            alert(`刪除任務失敗: ${error.message}`);
+          }
+        }
+      }
+      if (target.classList.contains("btn-add-time")) {
+        const timeToAddStr = prompt("請輸入你這次花費的分鐘數：", "30");
+        const timeToAdd = parseInt(timeToAddStr);
+        if (timeToAddStr === null || isNaN(timeToAdd) || timeToAdd < 0) {
+          return;
+        }
+        const taskCard = target.closest(".task-card");
+        const currentActualTime = parseInt(taskCard.dataset.actualTime) || 0;
+        const newActualTime = currentActualTime + timeToAdd;
+        try {
+          await fetchAPI("PATCH", `/api/tasks/${taskId}`, {
+            actualTime: newActualTime,
+          });
+          await loadTasks(state.selectedCourseId);
+        } catch (error) {
+          alert(`更新時間失敗: ${error.message}`);
+        }
+      }
+    });
+
+    // 初始載入
+    await loadCourses();
+    docManagementSection.style.display = "none";
+    renderTasks();
+  }
+
+  // 執行初始化
+  init();
 });
