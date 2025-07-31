@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>儀表板 - 大學生智能排程系統</title>
     <link rel="stylesheet" href="css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
   </head>
   <body>
     <header class="navbar">
@@ -18,7 +19,6 @@
         </nav>
       </div>
     </header>
-
     <main class="main-container">
       <h1>我的儀表板 (DWS)</h1>
       <div class="dashboard-layout">
@@ -31,52 +31,56 @@
             <ul id="course-list" class="course-list"></ul>
           </section>
         </aside>
-
         <section class="main-content">
           <div class="section-header">
             <h2 id="current-course-title">請選擇一門課程</h2>
-          </div>
-
-          <div
-            id="document-management-section"
-            class="document-management"
-            style="display: none"
-          >
-            <h3>文件管理</h3>
-            <div id="document-list" class="document-list"></div>
-            <div class="document-upload-area">
-              <input
-                type="file"
-                id="document-upload-input"
-                accept=".pdf"
-                style="display: none"
-              />
-              <label for="document-upload-input" class="btn btn-secondary"
-                >選擇檔案...</label
-              >
-              <button id="upload-doc-btn" class="btn btn-primary" disabled>
-                上傳文件
-              </button>
-              <span id="file-name-display"></span>
-            </div>
-            <hr />
-            <div class="ai-analyze-area">
-              <button id="analyze-btn" class="btn btn-ai">
-                🚀 讓 AI 綜合分析所有文件
-              </button>
+            <div id="view-switcher" class="view-switcher" style="display: none">
+              <button id="list-view-btn" class="view-btn active">列表</button>
+              <button id="calendar-view-btn" class="view-btn">日曆</button>
             </div>
           </div>
-          <div class="section-header task-header">
-            <h2>待辦任務</h2>
-            <button id="add-task-btn" class="btn btn-primary" disabled>
-              新增任務
-            </button>
+          <div id="list-view-container">
+            <div
+              id="document-management-section"
+              class="document-management"
+              style="display: none"
+            >
+              <h3>文件管理</h3>
+              <div id="document-list" class="document-list"></div>
+              <div class="document-upload-area">
+                <input
+                  type="file"
+                  id="document-upload-input"
+                  accept=".pdf"
+                  style="display: none"
+                />
+                <label for="document-upload-input" class="btn btn-secondary"
+                  >選擇檔案...</label
+                >
+                <button id="upload-doc-btn" class="btn btn-primary" disabled>
+                  上傳文件
+                </button>
+                <span id="file-name-display"></span>
+              </div>
+              <hr />
+              <div class="ai-analyze-area">
+                <button id="analyze-btn" class="btn btn-ai">
+                  🚀 讓 AI 綜合分析所有文件
+                </button>
+              </div>
+            </div>
+            <div class="section-header task-header">
+              <h2>待辦任務</h2>
+              <button id="add-task-btn" class="btn btn-primary" disabled>
+                新增任務
+              </button>
+            </div>
+            <div id="task-list-container"></div>
           </div>
-          <div id="task-list-container"></div>
+          <div id="calendar-view-container" style="display: none"></div>
         </section>
       </div>
     </main>
-
     <div id="modal" class="modal-overlay">
       <div class="modal-content">
         <h2 id="modal-title">Modal Title</h2>
@@ -87,10 +91,8 @@
         </div>
       </div>
     </div>
-
     <script src="js/ui.js"></script>
     <script src="js/dashboard.js"></script>
-
     <div id="toast-container" class="toast-container"></div>
     <div id="spinner-overlay" class="spinner-overlay">
       <div class="spinner"></div>

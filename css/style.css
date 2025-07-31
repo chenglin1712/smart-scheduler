@@ -595,3 +595,28 @@ hr {
     transform: rotate(360deg);
   }
 }
+
+/* 19. 視圖切換器樣式 */
+.view-switcher {
+  display: flex;
+  background-color: #e8e8e8;
+  border-radius: var(--radius-s);
+  padding: 4px;
+}
+
+.view-btn {
+  padding: 6px 16px;
+  border: none;
+  background-color: transparent;
+  border-radius: var(--radius-s);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-btn.active {
+  background-color: #fff;
+  color: var(--primary-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
