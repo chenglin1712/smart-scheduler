@@ -5,6 +5,7 @@ const { open } = require("sqlite");
 const MIGRATION_SQL = `
     ALTER TABLE Tasks ADD COLUMN estimatedTime INTEGER;
     ALTER TABLE Tasks ADD COLUMN actualTime INTEGER DEFAULT 0;
+    ALTER TABLE Tasks ADD COLUMN ownerId INTEGER;
 `;
 
 async function runMigration() {

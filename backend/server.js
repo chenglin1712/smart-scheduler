@@ -50,12 +50,14 @@ async function startServer() {
     // 引入所有路由
     const userRoutes = require("./routes/users");
     const courseRoutes = require("./routes/courses");
-    const taskRoutes = require("./routes/tasks"); // ★ 確認有引入
+    const taskRoutes = require("./routes/tasks");
+    const syllabusRoutes = require("./routes/syllabus"); // ★ 確認有引入
 
     // 使用所有路由
     app.use("/api/users", userRoutes);
     app.use("/api/courses", courseRoutes);
-    app.use("/api/tasks", taskRoutes); // ★ 確認有使用，且路徑是複數的 "tasks"
+    app.use("/api/tasks", taskRoutes);
+    app.use("/api/syllabus", syllabusRoutes); // ★ 確認有使用
 
     // --- 啟動伺服器 ---
     // 只有在所有設定都完成後，才啟動伺服器監聽
