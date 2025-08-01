@@ -637,3 +637,22 @@ hr {
   box-sizing: border-box;
   background-color: white;
 }
+
+/* 22. AI 分析區塊樣式 */
+.ai-analyze-area {
+  display: flex;
+  gap: 12px;
+}
+
+/* 23. AI 摘要 Modal 樣式 */
+#summary-textarea {
+  width: 100%;
+  height: 400px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-s);
+  padding: 12px;
+  resize: vertical; /* 允許使用者垂直調整大小 */
+}

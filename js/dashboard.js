@@ -1,30 +1,33 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // --- 1. DOM 元素 (無變動) ---
-  const courseList = document.getElementById("course-list"),
-    taskListContainer = document.getElementById("task-list-container"),
-    currentCourseTitle = document.getElementById("current-course-title"),
-    addCourseBtn = document.getElementById("add-course-btn"),
-    addTaskBtn = document.getElementById("add-task-btn"),
-    modal = document.getElementById("modal"),
-    modalTitle = document.getElementById("modal-title"),
-    modalForm = document.getElementById("modal-form"),
-    modalSaveBtn = document.getElementById("modal-save-btn"),
-    modalCancelBtn = document.getElementById("modal-cancel-btn"),
-    logoutButton = document.getElementById("logout-btn"),
-    docManagementSection = document.getElementById(
-      "document-management-section"
-    ),
-    documentList = document.getElementById("document-list"),
-    documentUploadInput = document.getElementById("document-upload-input"),
-    uploadDocBtn = document.getElementById("upload-doc-btn"),
-    analyzeBtn = document.getElementById("analyze-btn"),
-    fileNameDisplay = document.getElementById("file-name-display"),
-    spinner = document.getElementById("spinner-overlay"),
-    viewSwitcher = document.getElementById("view-switcher"),
-    listViewBtn = document.getElementById("list-view-btn"),
-    calendarViewBtn = document.getElementById("calendar-view-btn"),
-    listViewContainer = document.getElementById("list-view-container"),
-    calendarViewContainer = document.getElementById("calendar-view-container");
+  // --- 1. DOM 元素 (加入新按鈕) ---
+  const courseList = document.getElementById("course-list");
+  const taskListContainer = document.getElementById("task-list-container");
+  const currentCourseTitle = document.getElementById("current-course-title");
+  const addCourseBtn = document.getElementById("add-course-btn");
+  const addTaskBtn = document.getElementById("add-task-btn");
+  const modal = document.getElementById("modal");
+  const modalTitle = document.getElementById("modal-title");
+  const modalForm = document.getElementById("modal-form");
+  const modalSaveBtn = document.getElementById("modal-save-btn");
+  const modalCancelBtn = document.getElementById("modal-cancel-btn");
+  const logoutButton = document.getElementById("logout-btn");
+  const docManagementSection = document.getElementById(
+    "document-management-section"
+  );
+  const documentList = document.getElementById("document-list");
+  const documentUploadInput = document.getElementById("document-upload-input");
+  const uploadDocBtn = document.getElementById("upload-doc-btn");
+  const analyzeBtn = document.getElementById("analyze-btn");
+  const fileNameDisplay = document.getElementById("file-name-display");
+  const spinner = document.getElementById("spinner-overlay");
+  const viewSwitcher = document.getElementById("view-switcher");
+  const listViewBtn = document.getElementById("list-view-btn");
+  const calendarViewBtn = document.getElementById("calendar-view-btn");
+  const listViewContainer = document.getElementById("list-view-container");
+  const calendarViewContainer = document.getElementById(
+    "calendar-view-container"
+  );
+  const summarizeBtn = document.getElementById("summarize-btn"); // ★ 新增摘要按鈕元素
   let calendar,
     sortableInstance = null;
 
@@ -187,8 +190,6 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast(`載入文件列表失敗: ${error.message}`, "error");
     }
   }
-
-  // ★ 核心修改 #1：在 openModal 中加入任務類型的下拉選單
   function openModal(type) {
     modalForm.innerHTML = "";
     if (type === "course") {
@@ -196,41 +197,13 @@ document.addEventListener("DOMContentLoaded", () => {
       modalForm.innerHTML = `<div class="form-group"><label for="course-name">課程名稱</label><input type="text" id="course-name" required></div>`;
     } else if (type === "task") {
       modalTitle.textContent = "新增任務";
-      modalForm.innerHTML = `
-        <div class="form-group">
-            <label for="task-title">任務標題</label>
-            <input type="text" id="task-title" required>
-        </div>
-        <div class="form-group">
-            <label for="task-type">任務類型</label>
-            <select id="task-type" class="form-input">
-                <option value="作業">作業</option>
-                <option value="報告">報告</option>
-                <option value="複習">複習</option>
-                <option value="小考">小考</option>
-                <option value="期中考">期中考</option>
-                <option value="期末考">期末考</option>
-                <option value="其他">其他</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="task-deadline">截止日期</label>
-            <input type="date" id="task-deadline">
-        </div>
-        <div class="form-group">
-            <label for="task-estimated-time">預計花費時間 (分鐘)</label>
-            <input type="number" id="task-estimated-time" min="0">
-        </div>
-      `;
+      modalForm.innerHTML = `<div class="form-group"><label for="task-title">任務標題</label><input type="text" id="task-title" required></div><div class="form-group"><label for="task-type">任務類型</label><select id="task-type" class="form-input"><option value="作業">作業</option><option value="報告">報告</option><option value="複習">複習</option><option value="小考">小考</option><option value="期中考">期中考</option><option value="期末考">期末考</option><option value="其他">其他</option></select></div><div class="form-group"><label for="task-deadline">截止日期</label><input type="date" id="task-deadline"></div><div class="form-group"><label for="task-estimated-time">預計花費時間 (分鐘)</label><input type="number" id="task-estimated-time" min="0"></div>`;
     }
     modal.classList.add("show");
   }
-
   function closeModal() {
     modal.classList.remove("show");
   }
-
-  // ★ 核心修改 #2：在 handleSave 中讀取並傳送 taskType 的值
   async function handleSave() {
     const formType = modalTitle.textContent.includes("課程")
       ? "course"
@@ -252,14 +225,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const deadline = document.getElementById("task-deadline").value;
       const estimatedTime =
         parseInt(document.getElementById("task-estimated-time").value) || null;
-      const taskType = document.getElementById("task-type").value; // 讀取類型值
+      const taskType = document.getElementById("task-type").value;
       if (!title) return;
       try {
         await fetchAPI("POST", `/api/courses/${state.selectedCourseId}/tasks`, {
           title,
           deadline,
           estimatedTime,
-          taskType, // 將類型值加入請求
+          taskType,
         });
         await loadTasks(state.selectedCourseId);
         renderCourses();
@@ -271,7 +244,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     closeModal();
   }
-
   function initSortable() {
     if (sortableInstance) {
       sortableInstance.destroy();
@@ -292,6 +264,42 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       },
     });
+  }
+
+  // ★ 新增：在 Modal 中顯示摘要的函式
+  function showSummaryInModal(summaryText) {
+    modalTitle.textContent = "課程重點摘要";
+    // 使用 textarea 方便使用者複製內容，並設定 readonly
+    modalForm.innerHTML = `<textarea class="summary-textarea" readonly>${summaryText}</textarea>`;
+
+    const modalActions = modal.querySelector(".modal-actions");
+    // 暫時隱藏原本的按鈕，顯示一個「關閉」按鈕
+    modalActions.innerHTML =
+      '<button id="modal-close-btn" class="btn btn-primary">關閉</button>';
+
+    // 為新的關閉按鈕加上事件監聽
+    document
+      .getElementById("modal-close-btn")
+      .addEventListener("click", closeModalAndRestoreButtons);
+    modal.classList.add("show");
+  }
+
+  // ★ 新增：關閉 Modal 並還原按鈕的函式
+  function closeModalAndRestoreButtons() {
+    closeModal();
+    const modalActions = modal.querySelector(".modal-actions");
+    // 還原成原本的「取消」和「儲存」按鈕
+    modalActions.innerHTML = `
+            <button id="modal-cancel-btn" class="btn btn-secondary">取消</button>
+            <button id="modal-save-btn" class="btn btn-primary">儲存</button>
+        `;
+    // 需要重新為還原的按鈕綁定事件
+    modal
+      .querySelector("#modal-cancel-btn")
+      .addEventListener("click", closeModal);
+    modal
+      .querySelector("#modal-save-btn")
+      .addEventListener("click", handleSave);
   }
 
   // --- 6. 登出與初始化 ---
@@ -337,6 +345,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       },
     });
+
+    // --- 綁定所有事件監聽器 ---
     listViewBtn.addEventListener("click", () => {
       state.currentView = "list";
       listViewContainer.style.display = "block";
@@ -426,8 +436,15 @@ document.addEventListener("DOMContentLoaded", () => {
         openModal("task");
       }
     });
-    modalCancelBtn.addEventListener("click", closeModal);
-    modalSaveBtn.addEventListener("click", handleSave);
+
+    // ★ 核心修改：將 modalCancelBtn 和 modalSaveBtn 的監聽移到這裡，因為按鈕會被動態還原
+    document
+      .getElementById("modal-cancel-btn")
+      .addEventListener("click", closeModal);
+    document
+      .getElementById("modal-save-btn")
+      .addEventListener("click", handleSave);
+
     documentUploadInput.addEventListener("change", () => {
       if (documentUploadInput.files.length > 0) {
         fileNameDisplay.textContent = documentUploadInput.files[0].name;
@@ -488,6 +505,26 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     });
+
+    // ★ 新增：為摘要按鈕加上事件監聽器
+    summarizeBtn.addEventListener("click", async () => {
+      if (!state.selectedCourseId) return;
+      if (state.documents.length === 0) {
+        showToast("請先上傳至少一份文件才能產生摘要。", "error");
+        return;
+      }
+      try {
+        const result = await fetchAPI(
+          "POST",
+          `/api/analyze/course/${state.selectedCourseId}/summarize`
+        );
+        showSummaryInModal(result.summary);
+      } catch (error) {
+        showToast(`摘要產生失敗: ${error.message}`, "error");
+      }
+    });
+
+    // --- 初始載入 ---
     await loadCourses();
     docManagementSection.style.display = "none";
     viewSwitcher.style.display = "none";
