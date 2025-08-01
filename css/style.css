@@ -665,3 +665,148 @@ hr {
 .summary-content p {
   margin: 0 0 10px 0;
 }
+
+/* 24. AI 考卷 Modal 樣式 */
+.quiz-question {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.quiz-option {
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 15px;
+  border: 1px solid var(--border-color);
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: var(--radius-s);
+  transition: all 0.2s ease;
+}
+.quiz-option:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  background-color: #f0f7ff;
+}
+.quiz-option.correct {
+  background-color: #dcfce7;
+  border-color: #22c55e;
+  color: #15803d;
+  font-weight: bold;
+}
+.quiz-option.incorrect {
+  background-color: #fee2e2;
+  border-color: #ef4444;
+  color: #b91c1c;
+}
+.quiz-rationale {
+  font-size: 13px;
+  color: var(--text-color-light);
+  margin: -4px 0 8px 16px;
+  padding: 4px 8px;
+  border-left: 2px solid var(--border-color);
+}
+.quiz-hint {
+  font-size: 13px;
+  color: var(--text-color-light);
+  margin-top: 20px;
+  text-align: center;
+}
+.quiz-result {
+  font-size: 24px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* 列印專用樣式 */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .modal-overlay,
+  .modal-content,
+  .modal-content * {
+    visibility: visible;
+  }
+  .modal-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  .modal-actions {
+    display: none !important;
+  }
+}
+
+/* 25. AI 考卷列印專用樣式 */
+
+/* 答題回顧的基礎樣式 */
+.printable-question-block {
+  margin-bottom: 24px;
+  page-break-inside: avoid; /* 防止一個問題被列印到兩頁 */
+}
+.printable-question-block p {
+  margin: 8px 0;
+}
+.printable-question-block ul {
+  list-style-type: none;
+  padding-left: 16px;
+}
+.printable-question-block li {
+  margin-bottom: 4px;
+}
+.printable-user-answer {
+  font-style: italic;
+  color: var(--text-color-light);
+}
+/* 正確答案用綠色粗體標示 */
+.correct-answer {
+  color: #16a34a;
+  font-weight: bold;
+}
+/* 使用者選錯的答案用紅色刪除線標示 */
+.wrong-answer {
+  color: #b91c1c;
+  text-decoration: line-through;
+}
+
+/* ★★★ 核心：列印模式的特殊規則 ★★★ */
+@media print {
+  /* 1. 先把頁面上所有東西都藏起來 */
+  body * {
+    visibility: hidden;
+  }
+
+  /* 2. 只讓 Modal 彈出視窗和它裡面的內容顯示出來 */
+  .modal-overlay,
+  .modal-content,
+  .modal-content * {
+    visibility: visible;
+  }
+
+  /* 3. 移除 Modal 的彈出效果，讓它像一份正常文件一樣從頁面頂部開始 */
+  .modal-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    background-color: white !important;
+    box-shadow: none;
+  }
+  .modal-content {
+    width: 100%;
+    max-width: 100%;
+    box-shadow: none;
+    border: none;
+  }
+
+  /* 4. 在列印時，隱藏不需要的按鈕 */
+  .modal-actions {
+    display: none !important;
+  }
+}

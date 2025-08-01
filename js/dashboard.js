@@ -1,4 +1,3 @@
-// js/dashboard.js (AI 摘要 UX 強化最終版)
 document.addEventListener("DOMContentLoaded", () => {
   // --- 1. DOM 元素 ---
   const courseList = document.getElementById("course-list"),
@@ -9,8 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
     modal = document.getElementById("modal"),
     modalTitle = document.getElementById("modal-title"),
     modalForm = document.getElementById("modal-form"),
-    modalSaveBtn = document.getElementById("modal-save-btn"),
-    modalCancelBtn = document.getElementById("modal-cancel-btn"),
     logoutButton = document.getElementById("logout-btn"),
     docManagementSection = document.getElementById(
       "document-management-section"
@@ -27,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     listViewContainer = document.getElementById("list-view-container"),
     calendarViewContainer = document.getElementById("calendar-view-container"),
     summarizeBtn = document.getElementById("summarize-btn");
+  const quizBtn = document.getElementById("quiz-btn"); // ★ 新增考卷按鈕元素
   let calendar,
     sortableInstance = null;
 
@@ -264,25 +262,15 @@ document.addEventListener("DOMContentLoaded", () => {
       },
     });
   }
-
-  // ★ 核心修改 #1：升級 Modal 函式，支援 Markdown 渲染和匯出
   function showSummaryInModal(summaryText) {
     modalTitle.textContent = "課程重點摘要";
-
     const summaryContent = document.createElement("div");
     summaryContent.className = "summary-content";
-    // 使用 marked.js 將 Markdown 轉為 HTML
     summaryContent.innerHTML = marked.parse(summaryText);
-
     modalForm.innerHTML = "";
     modalForm.appendChild(summaryContent);
-
     const modalActions = modal.querySelector(".modal-actions");
-    modalActions.innerHTML = `
-            <button id="modal-export-btn" class="btn btn-secondary">匯出成 .md</button>
-            <button id="modal-close-btn" class="btn btn-primary">關閉</button>
-        `;
-
+    modalActions.innerHTML = `<button id="modal-export-btn" class="btn btn-secondary">匯出成 .md</button><button id="modal-close-btn" class="btn btn-primary">關閉</button>`;
     document
       .getElementById("modal-close-btn")
       .addEventListener("click", closeModalAndRestoreButtons);
@@ -307,22 +295,139 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     modal.classList.add("show");
   }
-
-  // ★ 核心修改 #2：新增關閉 Modal 並還原按鈕的函式
   function closeModalAndRestoreButtons() {
     closeModal();
     const modalActions = modal.querySelector(".modal-actions");
-    modalActions.innerHTML = `
-            <button id="modal-cancel-btn" class="btn btn-secondary">取消</button>
-            <button id="modal-save-btn" class="btn btn-primary">儲存</button>
-        `;
-    // 為還原的按鈕重新綁定事件
+    modalActions.innerHTML = `<button id="modal-cancel-btn" class="btn btn-secondary">取消</button><button id="modal-save-btn" class="btn btn-primary">儲存</button>`;
     modal
       .querySelector("#modal-cancel-btn")
       .addEventListener("click", closeModal);
     modal
       .querySelector("#modal-save-btn")
       .addEventListener("click", handleSave);
+  }
+
+  // ★ 新增：一個用來隨機打亂陣列的輔助函式
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // ★ 新增：顯示互動式考卷的函式
+  function showQuizInModal(quizData) {
+    let currentQuestionIndex = 0;
+    let userAnswers = [];
+
+    function renderQuestion() {
+      const question = quizData.questions[currentQuestionIndex];
+      const shuffledOptions = shuffleArray([...question.answerOptions]);
+      question.shuffledOptions = shuffledOptions;
+      modalTitle.textContent = `${quizData.title} (${
+        currentQuestionIndex + 1
+      }/${quizData.questions.length})`;
+      let optionsHTML = '<div class="quiz-options">';
+      shuffledOptions.forEach((option) => {
+        optionsHTML += `<button class="quiz-option btn" data-original-text="${option.text}">${option.text}</button>`;
+      });
+      optionsHTML += "</div>";
+      modalForm.innerHTML = `<div class="quiz-question">${question.question}</div>${optionsHTML}<div class="quiz-hint">💡 提示：${question.hint}</div>`;
+      const modalActions = modal.querySelector(".modal-actions");
+      modalActions.innerHTML =
+        '<button id="modal-close-btn" class="btn btn-secondary">結束測驗</button>';
+      document
+        .getElementById("modal-close-btn")
+        .addEventListener("click", closeModalAndRestoreButtons);
+      modalForm.querySelectorAll(".quiz-option").forEach((button) => {
+        button.addEventListener("click", handleAnswer);
+      });
+    }
+
+    function handleAnswer(event) {
+      const selectedText = event.target.dataset.originalText;
+      const question = quizData.questions[currentQuestionIndex];
+      const selectedOption = question.answerOptions.find(
+        (opt) => opt.text === selectedText
+      );
+      userAnswers[currentQuestionIndex] = selectedOption;
+      const optionButtons = modalForm.querySelectorAll(".quiz-option");
+      question.shuffledOptions.forEach((option, index) => {
+        optionButtons[index].disabled = true;
+        let rationaleDiv = document.createElement("div");
+        rationaleDiv.className = "quiz-rationale";
+        rationaleDiv.textContent = option.rationale;
+        if (option.isCorrect) {
+          optionButtons[index].classList.add("correct");
+        } else {
+          optionButtons[index].classList.add("incorrect");
+        }
+        optionButtons[index].after(rationaleDiv);
+      });
+      const modalActions = modal.querySelector(".modal-actions");
+      if (currentQuestionIndex < quizData.questions.length - 1) {
+        modalActions.innerHTML =
+          '<button id="next-question-btn" class="btn btn-primary">下一題</button>';
+        document
+          .getElementById("next-question-btn")
+          .addEventListener("click", () => {
+            currentQuestionIndex++;
+            renderQuestion();
+          });
+      } else {
+        showQuizResult();
+      }
+    }
+
+    function showQuizResult() {
+      let correctCount = 0;
+      quizData.questions.forEach((q, i) => {
+        if (userAnswers[i]?.isCorrect) {
+          correctCount++;
+        }
+      });
+      const score = (correctCount / quizData.questions.length) * 100;
+      modalTitle.textContent = "測驗結果";
+      let resultHTML = `<div class="quiz-result">你答對了 ${correctCount} / ${
+        quizData.questions.length
+      } 題！得分：${score.toFixed(0)} 分</div><hr>`;
+      resultHTML += `<div id="printable-quiz">`;
+      quizData.questions.forEach((q, i) => {
+        resultHTML += `<div class="printable-question-block">`;
+        resultHTML += `<p><strong>${i + 1}. ${q.question}</strong></p>`;
+        resultHTML += `<ul>`;
+        q.answerOptions.forEach((opt) => {
+          let className = "";
+          if (opt.isCorrect) className = "correct-answer";
+          else if (
+            userAnswers[i]?.text === opt.text &&
+            !userAnswers[i]?.isCorrect
+          )
+            className = "wrong-answer";
+          resultHTML += `<li class="${className}">${opt.text}</li>`;
+        });
+        resultHTML += `</ul>`;
+        resultHTML += `<p class="printable-user-answer">你的答案：${
+          userAnswers[i]?.text || "未作答"
+        } (${userAnswers[i]?.isCorrect ? "正確" : "錯誤"})</p>`;
+        resultHTML += `</div>`;
+      });
+      resultHTML += `</div>`;
+      modalForm.innerHTML = resultHTML;
+      const modalActions = modal.querySelector(".modal-actions");
+      modalActions.innerHTML = `<button id="print-quiz-btn" class="btn btn-secondary">列印/下載 PDF</button><button id="modal-close-btn" class="btn btn-primary">關閉</button>`;
+      document
+        .getElementById("modal-close-btn")
+        .addEventListener("click", closeModalAndRestoreButtons);
+      document
+        .getElementById("print-quiz-btn")
+        .addEventListener("click", () => {
+          window.print();
+        });
+    }
+    renderQuestion();
+    modal.classList.add("show");
   }
 
   // --- 6. 登出與初始化 ---
@@ -459,15 +564,12 @@ document.addEventListener("DOMContentLoaded", () => {
         openModal("task");
       }
     });
-
-    // ★ 核心修改 #3：將 modal按鈕的監聽移到這裡，確保還原後也能運作
     document
       .getElementById("modal-cancel-btn")
       .addEventListener("click", closeModal);
     document
       .getElementById("modal-save-btn")
       .addEventListener("click", handleSave);
-
     documentUploadInput.addEventListener("change", () => {
       if (documentUploadInput.files.length > 0) {
         fileNameDisplay.textContent = documentUploadInput.files[0].name;
@@ -523,13 +625,11 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
           showToast(`AI 分析失敗: ${error.message}`, "error");
         } finally {
-          analyzeBtn.textContent = "🚀 讓 AI 綜合分析所有文件";
+          analyzeBtn.textContent = "🚀 讓 AI 分析任務";
           analyzeBtn.disabled = false;
         }
       }
     });
-
-    // ★ 新增：為摘要按鈕加上事件監聽器
     summarizeBtn.addEventListener("click", async () => {
       if (!state.selectedCourseId) return;
       if (state.documents.length === 0) {
@@ -544,6 +644,23 @@ document.addEventListener("DOMContentLoaded", () => {
         showSummaryInModal(result.summary);
       } catch (error) {
         showToast(`摘要產生失敗: ${error.message}`, "error");
+      }
+    });
+
+    quizBtn.addEventListener("click", async () => {
+      if (!state.selectedCourseId) return;
+      if (state.documents.length === 0) {
+        showToast("請先上傳至少一份文件才能產生測驗。", "error");
+        return;
+      }
+      try {
+        const result = await fetchAPI(
+          "POST",
+          `/api/analyze/course/${state.selectedCourseId}/quiz`
+        );
+        showQuizInModal(result.quiz);
+      } catch (error) {
+        showToast(`測驗產生失敗: ${error.message}`, "error");
       }
     });
 
