@@ -53,6 +53,7 @@ async function startServer() {
     const taskRoutes = require("./routes/tasks");
     const documentRoutes = require("./routes/documents"); // 使用新的 document 路由
     const analyzeRoutes = require("./routes/analyze");
+    const homeRoutes = require("./routes/home");
 
     // 使用所有路由
     app.use("/api/users", userRoutes);
@@ -60,6 +61,7 @@ async function startServer() {
     app.use("/api/tasks", taskRoutes);
     app.use("/api/documents", documentRoutes); // 註冊新的 document 路由
     app.use("/api/analyze", analyzeRoutes);
+    app.use("/api/home", homeRoutes); //
 
     // --- 啟動伺服器 ---
     // 只有在所有設定都完成後，才啟動伺服器監聽
