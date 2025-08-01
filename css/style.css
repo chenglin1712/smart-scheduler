@@ -7,8 +7,8 @@
    ================================= */
 :root {
   --primary-color: #0071e3;
-  --background-color: #f5f5f7; /* 使用蘋果官網的淺灰色背景 */
-  --content-bg-color: #ffffff; /* 卡片和內容區塊使用純白，增加對比和層次 */
+  --background-color: #f5f5f7;
+  --content-bg-color: #ffffff;
   --text-color: #1d1d1f;
   --text-color-light: #515154;
   --border-color: #d2d2d7;
@@ -32,7 +32,7 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
   margin: 0;
-  padding-top: 60px; /* 為固定導覽列留出空間 */
+  padding-top: 60px;
 }
 
 h1 {
@@ -40,19 +40,16 @@ h1 {
   font-weight: 600;
   margin-bottom: 16px;
 }
-
 h2 {
   font-size: 24px;
   font-weight: 600;
   margin-top: 0;
 }
-
 h3 {
   font-size: 18px;
   font-weight: 600;
   margin: 0;
 }
-
 hr {
   border: none;
   border-top: 1px solid var(--border-color);
@@ -92,7 +89,6 @@ hr {
   align-items: center;
   z-index: 1000;
 }
-
 .nav-container {
   width: 100%;
   max-width: 1200px;
@@ -101,14 +97,12 @@ hr {
   justify-content: space-between;
   align-items: center;
 }
-
 .nav-logo {
   font-size: 20px;
   font-weight: 600;
   text-decoration: none;
   color: var(--text-color);
 }
-
 .nav-menu a {
   font-size: 16px;
   text-decoration: none;
@@ -116,7 +110,6 @@ hr {
   margin-left: 24px;
   transition: color 0.2s ease;
 }
-
 .nav-menu a:hover,
 .nav-menu a.active {
   color: var(--primary-color);
@@ -137,7 +130,6 @@ hr {
   white-space: nowrap;
   text-align: center;
 }
-
 .btn-primary {
   background-color: var(--primary-color);
   color: white;
@@ -151,7 +143,6 @@ hr {
   cursor: not-allowed;
   transform: none;
 }
-
 .btn-secondary {
   background-color: #e8e8e8;
   color: var(--text-color);
@@ -159,7 +150,6 @@ hr {
 .btn-secondary:hover {
   background-color: #dcdcdc;
 }
-
 .btn-delete {
   background-color: #fceeee;
   color: #d92d20;
@@ -168,7 +158,6 @@ hr {
   border-radius: 50%;
   font-size: 16px;
   font-weight: bold;
-  cursor: pointer;
   transition: background-color 0.2s ease;
   border: none;
   padding: 0;
@@ -176,7 +165,6 @@ hr {
 .btn-delete:hover {
   background-color: #f7d3d3;
 }
-
 .btn-add {
   background-color: #eef6ff;
   color: var(--primary-color);
@@ -184,7 +172,6 @@ hr {
   height: 28px;
   border-radius: 50%;
   font-size: 20px;
-  cursor: pointer;
   transition: all 0.2s ease;
   border: none;
   padding: 0;
@@ -193,14 +180,12 @@ hr {
   background-color: #dbeaff;
   transform: scale(1.1);
 }
-
 .btn-add-time {
   background-color: transparent;
   border: 1px solid var(--border-color);
   color: var(--text-color);
   padding: 4px 10px;
   border-radius: var(--radius-m);
-  cursor: pointer;
   font-size: 12px;
   transition: background-color 0.2s, border-color 0.2s;
 }
@@ -208,7 +193,6 @@ hr {
   background-color: #f0f0f0;
   border-color: #c0c0c0;
 }
-
 .btn-ai {
   width: 100%;
   background: linear-gradient(90deg, #6366f1, #a855f7);
@@ -231,13 +215,15 @@ hr {
   font-weight: 500;
   margin-bottom: 8px;
 }
-.form-group input {
+.form-group input,
+.form-input {
   width: 100%;
   padding: 14px;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-m);
   font-size: 16px;
   box-sizing: border-box;
+  background-color: white;
 }
 .form-group-inline {
   display: flex;
@@ -251,7 +237,6 @@ hr {
   font-weight: 500;
   min-height: 20px;
 }
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -272,7 +257,7 @@ hr {
   padding: 30px;
   border-radius: var(--radius-l);
   width: 100%;
-  max-width: 450px;
+  max-width: 500px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 .modal-actions {
@@ -315,7 +300,6 @@ hr {
   gap: 40px;
   align-items: flex-start;
 }
-
 .sidebar .section-header {
   display: flex;
   justify-content: space-between;
@@ -347,14 +331,12 @@ hr {
   background-color: var(--primary-color);
   color: white;
 }
-
 .main-content .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
 }
-
 .task-card {
   background-color: var(--content-bg-color);
   padding: 20px;
@@ -409,7 +391,6 @@ hr {
   background-color: #ffebeb;
   color: #d92d20;
 }
-
 .task-time-info {
   margin-top: 16px;
   padding-top: 16px;
@@ -420,7 +401,6 @@ hr {
   font-size: 14px;
   color: var(--text-color-light);
 }
-
 .document-management {
   background-color: var(--content-bg-color);
   padding: 20px;
@@ -450,6 +430,10 @@ hr {
   font-size: 14px;
   color: var(--text-color-light);
 }
+.ai-analyze-area {
+  display: flex;
+  gap: 12px;
+}
 
 /* =================================
    7. Page: GPA Calculator & Report
@@ -469,7 +453,6 @@ hr {
 .report-grid-2 {
   grid-template-columns: 1fr 1fr;
 }
-
 .gpa-form-container,
 .gpa-result-container,
 .chart-card {
@@ -512,17 +495,18 @@ hr {
   gap: 16px;
 }
 
-/* 17. Toast 通知系統樣式 */
+/* =================================
+   8. Overlays: Toast & Spinner
+   ================================= */
 .toast-container {
   position: fixed;
-  top: 80px; /* 從導覽列下方開始 */
+  top: 80px;
   right: 20px;
   z-index: 9999;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-
 .toast {
   padding: 16px 24px;
   border-radius: var(--radius-m);
@@ -531,17 +515,14 @@ hr {
   font-weight: 500;
   opacity: 0;
   transform: translateX(100%);
-  animation: slideIn 0.5s forwards, slideOut 0.5s forwards 3s; /* 進入、停留3秒、離開 */
+  animation: slideIn 0.5s forwards, slideOut 0.5s forwards 3s;
 }
-
 .toast-success {
-  background-color: #22c55e; /* 綠色 */
+  background-color: #22c55e;
 }
-
 .toast-error {
-  background-color: #ef4444; /* 紅色 */
+  background-color: #ef4444;
 }
-
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -552,7 +533,6 @@ hr {
     transform: translateX(0);
   }
 }
-
 @keyframes slideOut {
   from {
     opacity: 1;
@@ -563,8 +543,6 @@ hr {
     transform: translateX(100%);
   }
 }
-
-/* 18. Spinner 載入中動畫樣式 */
 .spinner-overlay {
   position: fixed;
   top: 0;
@@ -572,21 +550,19 @@ hr {
   width: 100%;
   height: 100%;
   background-color: rgba(255, 255, 255, 0.7);
-  display: none; /* 平時隱藏 */
+  display: none;
   justify-content: center;
   align-items: center;
   z-index: 10000;
 }
-
 .spinner {
   width: 50px;
   height: 50px;
-  border: 5px solid #f3f3f3; /* 淺灰色軌道 */
-  border-top: 5px solid var(--primary-color); /* 藍色旋轉部分 */
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid var(--primary-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
-
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -596,14 +572,15 @@ hr {
   }
 }
 
-/* 19. 視圖切換器樣式 */
+/* =================================
+   9. Components: View Switcher, Sortable, AI Modals
+   ================================= */
 .view-switcher {
   display: flex;
   background-color: #e8e8e8;
   border-radius: var(--radius-s);
   padding: 4px;
 }
-
 .view-btn {
   padding: 6px 16px;
   border: none;
@@ -614,59 +591,32 @@ hr {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .view-btn.active {
   background-color: #fff;
   color: var(--primary-color);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-
-/* 20. SortableJS 拖曳樣式 */
 .sortable-ghost {
   opacity: 0.4;
   background: #c8ebfb;
 }
 
-/* 21. 表單下拉選單樣式 */
-.form-input {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-m);
-  font-size: 16px;
-  box-sizing: border-box;
-  background-color: white;
-}
-
-/* 22. AI 分析區塊樣式 */
-.ai-analyze-area {
-  display: flex;
-  gap: 12px;
-}
-
-/* 23. AI 摘要 Modal 樣式 */
 .summary-content {
-  width: 100%;
-  max-height: 400px; /* 給一個最大高度 */
-  min-height: 200px;
-  font-family: inherit;
+  max-height: 60vh;
+  overflow-y: auto;
   font-size: 14px;
   line-height: 1.7;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-s);
   padding: 12px 16px;
   background-color: #f9f9f9;
-  overflow-y: auto; /* 內容過多時，顯示滾動條 */
+  white-space: pre-wrap;
 }
 .summary-content ul,
 .summary-content ol {
   padding-left: 20px;
 }
-.summary-content p {
-  margin: 0 0 10px 0;
-}
 
-/* 24. AI 考卷 Modal 樣式 */
 .quiz-question {
   font-size: 18px;
   font-weight: 500;
@@ -680,17 +630,6 @@ hr {
 .quiz-option {
   width: 100%;
   text-align: left;
-  padding: 12px 16px;
-  font-size: 15px;
-  border: 1px solid var(--border-color);
-  background-color: #fff;
-  cursor: pointer;
-  border-radius: var(--radius-s);
-  transition: all 0.2s ease;
-}
-.quiz-option:hover:not(:disabled) {
-  border-color: var(--primary-color);
-  background-color: #f0f7ff;
 }
 .quiz-option.correct {
   background-color: #dcfce7;
@@ -722,32 +661,14 @@ hr {
   line-height: 1.6;
 }
 
-/* 列印專用樣式 */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  .modal-overlay,
-  .modal-content,
-  .modal-content * {
-    visibility: visible;
-  }
-  .modal-overlay {
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
-  .modal-actions {
-    display: none !important;
-  }
+#printable-quiz {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 10px;
 }
-
-/* 25. AI 考卷列印專用樣式 */
-
-/* 答題回顧的基礎樣式 */
 .printable-question-block {
   margin-bottom: 24px;
-  page-break-inside: avoid; /* 防止一個問題被列印到兩頁 */
+  page-break-inside: avoid;
 }
 .printable-question-block p {
   margin: 8px 0;
@@ -763,33 +684,28 @@ hr {
   font-style: italic;
   color: var(--text-color-light);
 }
-/* 正確答案用綠色粗體標示 */
 .correct-answer {
   color: #16a34a;
   font-weight: bold;
 }
-/* 使用者選錯的答案用紅色刪除線標示 */
 .wrong-answer {
   color: #b91c1c;
   text-decoration: line-through;
 }
 
-/* ★★★ 核心：列印模式的特殊規則 ★★★ */
+/* =================================
+   10. Print Styles
+   ================================= */
 @media print {
-  /* 1. 先把頁面上所有東西都藏起來 */
   body * {
     visibility: hidden;
   }
-
-  /* 2. 只讓 Modal 彈出視窗和它裡面的內容顯示出來 */
   .modal-overlay,
   .modal-content,
   #printable-quiz,
   #printable-quiz * {
     visibility: visible;
   }
-
-  /* 3. 移除 Modal 的彈出效果，讓它像一份正常文件一樣從頁面頂部開始 */
   .modal-overlay {
     position: absolute;
     left: 0;
@@ -804,12 +720,11 @@ hr {
     max-width: 100%;
     box-shadow: none;
     border: none;
-    padding: 0;
+    padding: 20px;
   }
-
-  /* 4. 在列印時，隱藏不需要的按鈕和分數 */
   .modal-actions,
-  .quiz-result {
+  .quiz-result,
+  .modal-title {
     display: none !important;
   }
 }
