@@ -784,7 +784,8 @@ hr {
   /* 2. 只讓 Modal 彈出視窗和它裡面的內容顯示出來 */
   .modal-overlay,
   .modal-content,
-  .modal-content * {
+  #printable-quiz,
+  #printable-quiz * {
     visibility: visible;
   }
 
@@ -803,10 +804,12 @@ hr {
     max-width: 100%;
     box-shadow: none;
     border: none;
+    padding: 0;
   }
 
-  /* 4. 在列印時，隱藏不需要的按鈕 */
-  .modal-actions {
+  /* 4. 在列印時，隱藏不需要的按鈕和分數 */
+  .modal-actions,
+  .quiz-result {
     display: none !important;
   }
 }

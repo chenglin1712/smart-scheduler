@@ -1,6 +1,5 @@
-// js/dashboard.js (考卷 UX 強化最終版)
 document.addEventListener("DOMContentLoaded", () => {
-  // ... (所有程式碼直到 showQuizInModal 之前，都保持不變) ...
+  // --- 1. DOM 元素 ---
   const courseList = document.getElementById("course-list"),
     taskListContainer = document.getElementById("task-list-container"),
     currentCourseTitle = document.getElementById("current-course-title"),
@@ -28,6 +27,8 @@ document.addEventListener("DOMContentLoaded", () => {
     quizBtn = document.getElementById("quiz-btn");
   let calendar,
     sortableInstance = null;
+
+  // --- 2. 應用程式狀態 ---
   const state = {
     courses: [],
     tasks: [],
@@ -36,6 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
     token: localStorage.getItem("token"),
     currentView: "list",
   };
+
+  // --- 3. API 請求函式 ---
   async function fetchAPI(method, url, body = null) {
     spinner.style.display = "flex";
     try {
@@ -67,6 +70,8 @@ document.addEventListener("DOMContentLoaded", () => {
       spinner.style.display = "none";
     }
   }
+
+  // --- 4. 渲染函式 ---
   function renderCourses() {
     courseList.innerHTML = "";
     if (state.courses.length === 0) {
@@ -153,6 +158,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
+
+  // --- 5. 資料處理與互動函式 ---
   async function loadCourses() {
     try {
       state.courses = await fetchAPI("GET", "/api/courses");
@@ -394,6 +401,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       modalTitle.textContent = "測驗結果";
 
+      // 產生答題回顧的 HTML
       let resultHTML = `<div class="quiz-result">你答對了 ${correctCount} / ${
         quizData.questions.length
       } 題！得分：${score.toFixed(0)} 分</div><hr>`;
@@ -443,6 +451,7 @@ document.addEventListener("DOMContentLoaded", () => {
     modal.classList.add("show");
   }
 
+  // --- 6. 登出與初始化 ---
   function logout() {
     localStorage.removeItem("token");
     window.location.href = "index.html";
@@ -675,6 +684,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    // --- 初始載入 ---
     await loadCourses();
     docManagementSection.style.display = "none";
     viewSwitcher.style.display = "none";
