@@ -1,5 +1,6 @@
+// js/dashboard.js (考卷 UX 強化最終版)
 document.addEventListener("DOMContentLoaded", () => {
-  // --- 1. DOM 元素 ---
+  // ... (所有程式碼直到 showQuizInModal 之前，都保持不變) ...
   const courseList = document.getElementById("course-list"),
     taskListContainer = document.getElementById("task-list-container"),
     currentCourseTitle = document.getElementById("current-course-title"),
@@ -23,12 +24,10 @@ document.addEventListener("DOMContentLoaded", () => {
     calendarViewBtn = document.getElementById("calendar-view-btn"),
     listViewContainer = document.getElementById("list-view-container"),
     calendarViewContainer = document.getElementById("calendar-view-container"),
-    summarizeBtn = document.getElementById("summarize-btn");
-  const quizBtn = document.getElementById("quiz-btn"); // ★ 新增考卷按鈕元素
+    summarizeBtn = document.getElementById("summarize-btn"),
+    quizBtn = document.getElementById("quiz-btn");
   let calendar,
     sortableInstance = null;
-
-  // --- 2. 應用程式狀態 ---
   const state = {
     courses: [],
     tasks: [],
@@ -37,8 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
     token: localStorage.getItem("token"),
     currentView: "list",
   };
-
-  // --- 3. API 請求函式 ---
   async function fetchAPI(method, url, body = null) {
     spinner.style.display = "flex";
     try {
@@ -70,8 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
       spinner.style.display = "none";
     }
   }
-
-  // --- 4. 渲染函式 ---
   function renderCourses() {
     courseList.innerHTML = "";
     if (state.courses.length === 0) {
@@ -158,8 +153,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
-
-  // --- 5. 資料處理與互動函式 ---
   async function loadCourses() {
     try {
       state.courses = await fetchAPI("GET", "/api/courses");
@@ -316,30 +309,37 @@ document.addEventListener("DOMContentLoaded", () => {
     return array;
   }
 
-  // ★ 新增：顯示互動式考卷的函式
+  // ★ 改造：顯示互動式考卷的函式
   function showQuizInModal(quizData) {
     let currentQuestionIndex = 0;
     let userAnswers = [];
 
     function renderQuestion() {
       const question = quizData.questions[currentQuestionIndex];
+      // 核心修改 #1：在渲染前，先將選項打亂
       const shuffledOptions = shuffleArray([...question.answerOptions]);
-      question.shuffledOptions = shuffledOptions;
+      question.shuffledOptions = shuffledOptions; // 將打亂後的順序暫存起來
+
       modalTitle.textContent = `${quizData.title} (${
         currentQuestionIndex + 1
       }/${quizData.questions.length})`;
+
       let optionsHTML = '<div class="quiz-options">';
       shuffledOptions.forEach((option) => {
+        // data-original-text 用來比對答案，不受順序影響
         optionsHTML += `<button class="quiz-option btn" data-original-text="${option.text}">${option.text}</button>`;
       });
       optionsHTML += "</div>";
+
       modalForm.innerHTML = `<div class="quiz-question">${question.question}</div>${optionsHTML}<div class="quiz-hint">💡 提示：${question.hint}</div>`;
+
       const modalActions = modal.querySelector(".modal-actions");
       modalActions.innerHTML =
         '<button id="modal-close-btn" class="btn btn-secondary">結束測驗</button>';
       document
         .getElementById("modal-close-btn")
         .addEventListener("click", closeModalAndRestoreButtons);
+
       modalForm.querySelectorAll(".quiz-option").forEach((button) => {
         button.addEventListener("click", handleAnswer);
       });
@@ -352,6 +352,7 @@ document.addEventListener("DOMContentLoaded", () => {
         (opt) => opt.text === selectedText
       );
       userAnswers[currentQuestionIndex] = selectedOption;
+
       const optionButtons = modalForm.querySelectorAll(".quiz-option");
       question.shuffledOptions.forEach((option, index) => {
         optionButtons[index].disabled = true;
@@ -365,6 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         optionButtons[index].after(rationaleDiv);
       });
+
       const modalActions = modal.querySelector(".modal-actions");
       if (currentQuestionIndex < quizData.questions.length - 1) {
         modalActions.innerHTML =
@@ -380,6 +382,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // ★ 核心修改 #2：在結果頁面產生一份完整的答題回顧，以利列印
     function showQuizResult() {
       let correctCount = 0;
       quizData.questions.forEach((q, i) => {
@@ -388,23 +391,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
       const score = (correctCount / quizData.questions.length) * 100;
+
       modalTitle.textContent = "測驗結果";
+
       let resultHTML = `<div class="quiz-result">你答對了 ${correctCount} / ${
         quizData.questions.length
       } 題！得分：${score.toFixed(0)} 分</div><hr>`;
-      resultHTML += `<div id="printable-quiz">`;
+      resultHTML += `<div id="printable-quiz">`; // 用一個 div 包住所有要列印的內容
       quizData.questions.forEach((q, i) => {
         resultHTML += `<div class="printable-question-block">`;
         resultHTML += `<p><strong>${i + 1}. ${q.question}</strong></p>`;
         resultHTML += `<ul>`;
         q.answerOptions.forEach((opt) => {
           let className = "";
-          if (opt.isCorrect) className = "correct-answer";
-          else if (
+          if (opt.isCorrect) {
+            className = "correct-answer"; // 正確答案的樣式
+          } else if (
             userAnswers[i]?.text === opt.text &&
             !userAnswers[i]?.isCorrect
-          )
-            className = "wrong-answer";
+          ) {
+            className = "wrong-answer"; // 你選的錯誤答案的樣式
+          }
           resultHTML += `<li class="${className}">${opt.text}</li>`;
         });
         resultHTML += `</ul>`;
@@ -414,9 +421,14 @@ document.addEventListener("DOMContentLoaded", () => {
         resultHTML += `</div>`;
       });
       resultHTML += `</div>`;
+
       modalForm.innerHTML = resultHTML;
+
       const modalActions = modal.querySelector(".modal-actions");
-      modalActions.innerHTML = `<button id="print-quiz-btn" class="btn btn-secondary">列印/下載 PDF</button><button id="modal-close-btn" class="btn btn-primary">關閉</button>`;
+      modalActions.innerHTML = `
+                <button id="print-quiz-btn" class="btn btn-secondary">列印/下載 PDF</button>
+                <button id="modal-close-btn" class="btn btn-primary">關閉</button>
+            `;
       document
         .getElementById("modal-close-btn")
         .addEventListener("click", closeModalAndRestoreButtons);
@@ -426,11 +438,11 @@ document.addEventListener("DOMContentLoaded", () => {
           window.print();
         });
     }
+
     renderQuestion();
     modal.classList.add("show");
   }
 
-  // --- 6. 登出與初始化 ---
   function logout() {
     localStorage.removeItem("token");
     window.location.href = "index.html";
@@ -646,7 +658,6 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast(`摘要產生失敗: ${error.message}`, "error");
       }
     });
-
     quizBtn.addEventListener("click", async () => {
       if (!state.selectedCourseId) return;
       if (state.documents.length === 0) {
@@ -664,7 +675,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // --- 初始載入 ---
     await loadCourses();
     docManagementSection.style.display = "none";
     viewSwitcher.style.display = "none";
