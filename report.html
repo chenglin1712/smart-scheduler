@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>數據報告 - 大學生智能排程系統</title>
+    <title>學習儀表板 - 大學生智能排程系統</title>
     <link rel="stylesheet" href="css/style.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
@@ -19,21 +19,32 @@
         </nav>
       </div>
     </header>
-
     <main class="main-container">
-      <h1>數據報告</h1>
+      <h1>學習儀表板</h1>
       <div class="report-container report-grid-2">
         <div class="chart-card">
-          <h2>各科任務數量分析</h2>
+          <h2>各科任務數量</h2>
           <canvas id="tasksPerCourseChart"></canvas>
         </div>
         <div class="chart-card">
           <h2>各科花費時間分佈</h2>
           <canvas id="timePerCourseChart"></canvas>
         </div>
+        <div class="chart-card">
+          <h2>預計 vs 實際花費時間</h2>
+          <canvas id="estimatedVsActualChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h2>任務類型時間分佈</h2>
+          <canvas id="timeByTaskTypeChart"></canvas>
+        </div>
       </div>
     </main>
-
+    <script src="js/ui.js"></script>
     <script src="js/report.js"></script>
+    <div id="toast-container" class="toast-container"></div>
+    <div id="spinner-overlay" class="spinner-overlay">
+      <div class="spinner"></div>
+    </div>
   </body>
 </html>

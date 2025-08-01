@@ -1,36 +1,34 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // --- 1. DOM 元素 ---
-  const courseList = document.getElementById("course-list");
-  const taskListContainer = document.getElementById("task-list-container");
-  const currentCourseTitle = document.getElementById("current-course-title");
-  const addCourseBtn = document.getElementById("add-course-btn");
-  const addTaskBtn = document.getElementById("add-task-btn");
-  const modal = document.getElementById("modal");
-  const modalTitle = document.getElementById("modal-title");
-  const modalForm = document.getElementById("modal-form");
-  const modalSaveBtn = document.getElementById("modal-save-btn");
-  const modalCancelBtn = document.getElementById("modal-cancel-btn");
-  const logoutButton = document.getElementById("logout-btn");
-  const docManagementSection = document.getElementById(
-    "document-management-section"
-  );
-  const documentList = document.getElementById("document-list");
-  const documentUploadInput = document.getElementById("document-upload-input");
-  const uploadDocBtn = document.getElementById("upload-doc-btn");
-  const analyzeBtn = document.getElementById("analyze-btn");
-  const fileNameDisplay = document.getElementById("file-name-display");
-  const spinner = document.getElementById("spinner-overlay");
-  const viewSwitcher = document.getElementById("view-switcher");
-  const listViewBtn = document.getElementById("list-view-btn");
-  const calendarViewBtn = document.getElementById("calendar-view-btn");
-  const listViewContainer = document.getElementById("list-view-container");
-  const calendarViewContainer = document.getElementById(
-    "calendar-view-container"
-  );
-  let calendar;
-  let sortableInstance = null;
+  // --- 1. DOM 元素 (無變動) ---
+  const courseList = document.getElementById("course-list"),
+    taskListContainer = document.getElementById("task-list-container"),
+    currentCourseTitle = document.getElementById("current-course-title"),
+    addCourseBtn = document.getElementById("add-course-btn"),
+    addTaskBtn = document.getElementById("add-task-btn"),
+    modal = document.getElementById("modal"),
+    modalTitle = document.getElementById("modal-title"),
+    modalForm = document.getElementById("modal-form"),
+    modalSaveBtn = document.getElementById("modal-save-btn"),
+    modalCancelBtn = document.getElementById("modal-cancel-btn"),
+    logoutButton = document.getElementById("logout-btn"),
+    docManagementSection = document.getElementById(
+      "document-management-section"
+    ),
+    documentList = document.getElementById("document-list"),
+    documentUploadInput = document.getElementById("document-upload-input"),
+    uploadDocBtn = document.getElementById("upload-doc-btn"),
+    analyzeBtn = document.getElementById("analyze-btn"),
+    fileNameDisplay = document.getElementById("file-name-display"),
+    spinner = document.getElementById("spinner-overlay"),
+    viewSwitcher = document.getElementById("view-switcher"),
+    listViewBtn = document.getElementById("list-view-btn"),
+    calendarViewBtn = document.getElementById("calendar-view-btn"),
+    listViewContainer = document.getElementById("list-view-container"),
+    calendarViewContainer = document.getElementById("calendar-view-container");
+  let calendar,
+    sortableInstance = null;
 
-  // --- 2. 應用程式狀態 ---
+  // --- 2. 應用程式狀態 (無變動) ---
   const state = {
     courses: [],
     tasks: [],
@@ -40,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     currentView: "list",
   };
 
-  // --- 3. API 請求函式 ---
+  // --- 3. API 請求函式 (無變動) ---
   async function fetchAPI(method, url, body = null) {
     spinner.style.display = "flex";
     try {
@@ -73,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 4. 渲染函式 ---
+  // --- 4. 渲染函式 (無變動) ---
   function renderCourses() {
     courseList.innerHTML = "";
     if (state.courses.length === 0) {
@@ -90,7 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
-
   function renderTasks() {
     taskListContainer.innerHTML = "";
     const selectedCourse = state.courses.find(
@@ -145,10 +142,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }">增加時間</button></div>`;
       taskListContainer.appendChild(taskCard);
     });
-
     initSortable();
   }
-
   function renderDocuments() {
     documentList.innerHTML = "";
     if (state.documents.length === 0) {
@@ -192,6 +187,8 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast(`載入文件列表失敗: ${error.message}`, "error");
     }
   }
+
+  // ★ 核心修改 #1：在 openModal 中加入任務類型的下拉選單
   function openModal(type) {
     modalForm.innerHTML = "";
     if (type === "course") {
@@ -199,13 +196,41 @@ document.addEventListener("DOMContentLoaded", () => {
       modalForm.innerHTML = `<div class="form-group"><label for="course-name">課程名稱</label><input type="text" id="course-name" required></div>`;
     } else if (type === "task") {
       modalTitle.textContent = "新增任務";
-      modalForm.innerHTML = `<div class="form-group"><label for="task-title">任務標題</label><input type="text" id="task-title" required></div><div class="form-group"><label for="task-deadline">截止日期</label><input type="date" id="task-deadline"></div><div class="form-group"><label for="task-estimated-time">預計花費時間 (分鐘)</label><input type="number" id="task-estimated-time" min="0"></div>`;
+      modalForm.innerHTML = `
+        <div class="form-group">
+            <label for="task-title">任務標題</label>
+            <input type="text" id="task-title" required>
+        </div>
+        <div class="form-group">
+            <label for="task-type">任務類型</label>
+            <select id="task-type" class="form-input">
+                <option value="作業">作業</option>
+                <option value="報告">報告</option>
+                <option value="複習">複習</option>
+                <option value="小考">小考</option>
+                <option value="期中考">期中考</option>
+                <option value="期末考">期末考</option>
+                <option value="其他">其他</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="task-deadline">截止日期</label>
+            <input type="date" id="task-deadline">
+        </div>
+        <div class="form-group">
+            <label for="task-estimated-time">預計花費時間 (分鐘)</label>
+            <input type="number" id="task-estimated-time" min="0">
+        </div>
+      `;
     }
     modal.classList.add("show");
   }
+
   function closeModal() {
     modal.classList.remove("show");
   }
+
+  // ★ 核心修改 #2：在 handleSave 中讀取並傳送 taskType 的值
   async function handleSave() {
     const formType = modalTitle.textContent.includes("課程")
       ? "course"
@@ -227,12 +252,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const deadline = document.getElementById("task-deadline").value;
       const estimatedTime =
         parseInt(document.getElementById("task-estimated-time").value) || null;
+      const taskType = document.getElementById("task-type").value; // 讀取類型值
       if (!title) return;
       try {
         await fetchAPI("POST", `/api/courses/${state.selectedCourseId}/tasks`, {
           title,
           deadline,
           estimatedTime,
+          taskType, // 將類型值加入請求
         });
         await loadTasks(state.selectedCourseId);
         renderCourses();
@@ -253,8 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
       animation: 150,
       ghostClass: "sortable-ghost",
       onEnd: async function (evt) {
-        evt.preventDefault(); // ★ 核心修正：阻止瀏覽器的預設跳轉行為
-
+        evt.preventDefault();
         const taskCards = Array.from(taskListContainer.children);
         const orderedTaskIds = taskCards.map((card) => card.dataset.id);
         try {
@@ -273,13 +299,11 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem("token");
     window.location.href = "index.html";
   }
-
   async function init() {
     if (!state.token) {
       logout();
       return;
     }
-
     calendar = new FullCalendar.Calendar(calendarViewContainer, {
       initialView: "dayGridMonth",
       locale: "zh-tw",
@@ -313,8 +337,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       },
     });
-
-    // --- 綁定所有事件監聽器 ---
     listViewBtn.addEventListener("click", () => {
       state.currentView = "list";
       listViewContainer.style.display = "block";
@@ -466,8 +488,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     });
-
-    // --- 初始載入 ---
     await loadCourses();
     docManagementSection.style.display = "none";
     viewSwitcher.style.display = "none";

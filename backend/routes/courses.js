@@ -3,7 +3,6 @@ const router = express.Router();
 const auth = require("../middleware/auth");
 
 // --- GET /api/courses ---
-// (此部分無變動)
 router.get("/", auth, async (req, res) => {
   try {
     const db = req.db;
@@ -18,7 +17,6 @@ router.get("/", auth, async (req, res) => {
 });
 
 // --- POST /api/courses ---
-// (此部分無變動)
 router.post("/", auth, async (req, res) => {
   const { name } = req.body;
   if (!name) {
@@ -41,7 +39,6 @@ router.post("/", auth, async (req, res) => {
 });
 
 // --- GET /api/courses/:courseId/tasks ---
-// ★ 核心修改：加上 ORDER BY orderIndex ASC
 router.get("/:courseId/tasks", auth, async (req, res) => {
   try {
     const db = req.db;
@@ -57,20 +54,23 @@ router.get("/:courseId/tasks", auth, async (req, res) => {
 });
 
 // --- POST /api/courses/:courseId/tasks ---
-// (此部分無變動)
+// ★★★ 確保此區塊為最新版本 ★★★
 router.post("/:courseId/tasks", auth, async (req, res) => {
-  const { title, deadline, estimatedTime } = req.body;
+  // 1. 從 req.body 解構出 taskType
+  const { title, deadline, estimatedTime, taskType } = req.body;
   if (!title) {
     return res.status(400).json({ message: "任務標題為必填欄位。" });
   }
   try {
     const db = req.db;
     const result = await db.run(
-      "INSERT INTO Tasks (title, deadline, estimatedTime, groupId, ownerId) VALUES (?, ?, ?, ?, ?)",
+      // 2. 在 INSERT 語句中加入 taskType 欄位
+      "INSERT INTO Tasks (title, deadline, estimatedTime, taskType, groupId, ownerId) VALUES (?, ?, ?, ?, ?, ?)",
       [
         title,
         deadline || null,
         estimatedTime || null,
+        taskType || "其他", // 3. 將 taskType 加入到參數中
         req.params.courseId,
         req.user.id,
       ]
