@@ -645,14 +645,23 @@ hr {
 }
 
 /* 23. AI 摘要 Modal 樣式 */
-#summary-textarea {
+.summary-content {
   width: 100%;
-  height: 400px;
+  max-height: 400px; /* 給一個最大高度 */
+  min-height: 200px;
   font-family: inherit;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.7;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-s);
-  padding: 12px;
-  resize: vertical; /* 允許使用者垂直調整大小 */
+  padding: 12px 16px;
+  background-color: #f9f9f9;
+  overflow-y: auto; /* 內容過多時，顯示滾動條 */
+}
+.summary-content ul,
+.summary-content ol {
+  padding-left: 20px;
+}
+.summary-content p {
+  margin: 0 0 10px 0;
 }

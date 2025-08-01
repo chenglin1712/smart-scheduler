@@ -1,37 +1,36 @@
+// js/dashboard.js (AI 摘要 UX 強化最終版)
 document.addEventListener("DOMContentLoaded", () => {
-  // --- 1. DOM 元素 (加入新按鈕) ---
-  const courseList = document.getElementById("course-list");
-  const taskListContainer = document.getElementById("task-list-container");
-  const currentCourseTitle = document.getElementById("current-course-title");
-  const addCourseBtn = document.getElementById("add-course-btn");
-  const addTaskBtn = document.getElementById("add-task-btn");
-  const modal = document.getElementById("modal");
-  const modalTitle = document.getElementById("modal-title");
-  const modalForm = document.getElementById("modal-form");
-  const modalSaveBtn = document.getElementById("modal-save-btn");
-  const modalCancelBtn = document.getElementById("modal-cancel-btn");
-  const logoutButton = document.getElementById("logout-btn");
-  const docManagementSection = document.getElementById(
-    "document-management-section"
-  );
-  const documentList = document.getElementById("document-list");
-  const documentUploadInput = document.getElementById("document-upload-input");
-  const uploadDocBtn = document.getElementById("upload-doc-btn");
-  const analyzeBtn = document.getElementById("analyze-btn");
-  const fileNameDisplay = document.getElementById("file-name-display");
-  const spinner = document.getElementById("spinner-overlay");
-  const viewSwitcher = document.getElementById("view-switcher");
-  const listViewBtn = document.getElementById("list-view-btn");
-  const calendarViewBtn = document.getElementById("calendar-view-btn");
-  const listViewContainer = document.getElementById("list-view-container");
-  const calendarViewContainer = document.getElementById(
-    "calendar-view-container"
-  );
-  const summarizeBtn = document.getElementById("summarize-btn"); // ★ 新增摘要按鈕元素
+  // --- 1. DOM 元素 ---
+  const courseList = document.getElementById("course-list"),
+    taskListContainer = document.getElementById("task-list-container"),
+    currentCourseTitle = document.getElementById("current-course-title"),
+    addCourseBtn = document.getElementById("add-course-btn"),
+    addTaskBtn = document.getElementById("add-task-btn"),
+    modal = document.getElementById("modal"),
+    modalTitle = document.getElementById("modal-title"),
+    modalForm = document.getElementById("modal-form"),
+    modalSaveBtn = document.getElementById("modal-save-btn"),
+    modalCancelBtn = document.getElementById("modal-cancel-btn"),
+    logoutButton = document.getElementById("logout-btn"),
+    docManagementSection = document.getElementById(
+      "document-management-section"
+    ),
+    documentList = document.getElementById("document-list"),
+    documentUploadInput = document.getElementById("document-upload-input"),
+    uploadDocBtn = document.getElementById("upload-doc-btn"),
+    analyzeBtn = document.getElementById("analyze-btn"),
+    fileNameDisplay = document.getElementById("file-name-display"),
+    spinner = document.getElementById("spinner-overlay"),
+    viewSwitcher = document.getElementById("view-switcher"),
+    listViewBtn = document.getElementById("list-view-btn"),
+    calendarViewBtn = document.getElementById("calendar-view-btn"),
+    listViewContainer = document.getElementById("list-view-container"),
+    calendarViewContainer = document.getElementById("calendar-view-container"),
+    summarizeBtn = document.getElementById("summarize-btn");
   let calendar,
     sortableInstance = null;
 
-  // --- 2. 應用程式狀態 (無變動) ---
+  // --- 2. 應用程式狀態 ---
   const state = {
     courses: [],
     tasks: [],
@@ -41,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     currentView: "list",
   };
 
-  // --- 3. API 請求函式 (無變動) ---
+  // --- 3. API 請求函式 ---
   async function fetchAPI(method, url, body = null) {
     spinner.style.display = "flex";
     try {
@@ -74,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 4. 渲染函式 (無變動) ---
+  // --- 4. 渲染函式 ---
   function renderCourses() {
     courseList.innerHTML = "";
     if (state.courses.length === 0) {
@@ -266,34 +265,58 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ★ 新增：在 Modal 中顯示摘要的函式
+  // ★ 核心修改 #1：升級 Modal 函式，支援 Markdown 渲染和匯出
   function showSummaryInModal(summaryText) {
     modalTitle.textContent = "課程重點摘要";
-    // 使用 textarea 方便使用者複製內容，並設定 readonly
-    modalForm.innerHTML = `<textarea class="summary-textarea" readonly>${summaryText}</textarea>`;
+
+    const summaryContent = document.createElement("div");
+    summaryContent.className = "summary-content";
+    // 使用 marked.js 將 Markdown 轉為 HTML
+    summaryContent.innerHTML = marked.parse(summaryText);
+
+    modalForm.innerHTML = "";
+    modalForm.appendChild(summaryContent);
 
     const modalActions = modal.querySelector(".modal-actions");
-    // 暫時隱藏原本的按鈕，顯示一個「關閉」按鈕
-    modalActions.innerHTML =
-      '<button id="modal-close-btn" class="btn btn-primary">關閉</button>';
+    modalActions.innerHTML = `
+            <button id="modal-export-btn" class="btn btn-secondary">匯出成 .md</button>
+            <button id="modal-close-btn" class="btn btn-primary">關閉</button>
+        `;
 
-    // 為新的關閉按鈕加上事件監聽
     document
       .getElementById("modal-close-btn")
       .addEventListener("click", closeModalAndRestoreButtons);
+    document
+      .getElementById("modal-export-btn")
+      .addEventListener("click", () => {
+        const courseName =
+          state.courses.find((c) => c.id === state.selectedCourseId)?.name ||
+          "課程";
+        const blob = new Blob([summaryText], {
+          type: "text/markdown;charset=utf-8",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${courseName}_重點摘要.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("摘要已匯出！", "success");
+      });
     modal.classList.add("show");
   }
 
-  // ★ 新增：關閉 Modal 並還原按鈕的函式
+  // ★ 核心修改 #2：新增關閉 Modal 並還原按鈕的函式
   function closeModalAndRestoreButtons() {
     closeModal();
     const modalActions = modal.querySelector(".modal-actions");
-    // 還原成原本的「取消」和「儲存」按鈕
     modalActions.innerHTML = `
             <button id="modal-cancel-btn" class="btn btn-secondary">取消</button>
             <button id="modal-save-btn" class="btn btn-primary">儲存</button>
         `;
-    // 需要重新為還原的按鈕綁定事件
+    // 為還原的按鈕重新綁定事件
     modal
       .querySelector("#modal-cancel-btn")
       .addEventListener("click", closeModal);
@@ -437,7 +460,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // ★ 核心修改：將 modalCancelBtn 和 modalSaveBtn 的監聽移到這裡，因為按鈕會被動態還原
+    // ★ 核心修改 #3：將 modal按鈕的監聽移到這裡，確保還原後也能運作
     document
       .getElementById("modal-cancel-btn")
       .addEventListener("click", closeModal);
