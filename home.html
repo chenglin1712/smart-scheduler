@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>首頁 - 大學生智能排程系統</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="nav-container">
+        <a href="home.html" class="nav-logo">Scheduler Pro</a>
+        <nav class="nav-menu">
+          <a href="dashboard.html">儀表板</a>
+          <a href="gpa.html">GPA 計算機</a>
+          <a href="report.html">數據報告</a>
+          <a href="#" id="logout-btn">登出</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main-container">
+      <section class="profile-header">
+        <img
+          id="user-avatar"
+          src="https://placehold.co/100x100/EFEFEF/AAAAAA?text=Avatar"
+          alt="User Avatar"
+          class="profile-avatar"
+        />
+        <div class="profile-info">
+          <h1 id="greeting" class="profile-greeting">載入中...</h1>
+          <p id="user-details" class="profile-details">載入中...</p>
+        </div>
+      </section>
+
+      <section class="widget-grid">
+        <a href="dashboard.html" class="widget widget-dashboard">
+          <div class="widget-icon">🚀</div>
+          <div class="widget-content">
+            <h3>儀表板 (DWS)</h3>
+            <p>管理你的所有課程與任務</p>
+          </div>
+          <div id="widget-course-count" class="widget-data">...</div>
+        </a>
+        <a href="gpa.html" class="widget widget-gpa">
+          <div class="widget-icon">🎓</div>
+          <div class="widget-content">
+            <h3>GPA 計算機</h3>
+            <p>預估與追蹤你的學期成績</p>
+          </div>
+        </a>
+        <a href="report.html" class="widget widget-report">
+          <div class="widget-icon">📊</div>
+          <div class="widget-content">
+            <h3>學習儀表板</h3>
+            <p>視覺化你的學習成效</p>
+          </div>
+          <div id="widget-study-time" class="widget-data">...</div>
+        </a>
+      </section>
+
+      <section class="today-focus">
+        <h2>今日焦點</h2>
+        <div id="today-tasks-container" class="focus-tasks-list">
+          <p class="empty-list-text">載入中...</p>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/ui.js"></script>
+    <script src="js/home.js"></script>
+
+    <div id="toast-container" class="toast-container"></div>
+    <div id="spinner-overlay" class="spinner-overlay">
+      <div class="spinner"></div>
+    </div>
+  </body>
+</html>
