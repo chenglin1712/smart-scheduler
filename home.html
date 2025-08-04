@@ -24,7 +24,7 @@
         <img
           id="user-avatar"
           src="https://placehold.co/100x100/EFEFEF/AAAAAA?text=Avatar"
-          alt="User Avatar"
+          alt="使用者頭像"
           class="profile-avatar"
         />
         <div class="profile-info">
@@ -67,9 +67,11 @@
       </section>
     </main>
 
+    <!-- ★ 結構正確：ui.js 在前，home.js 在後 -->
     <script src="js/ui.js"></script>
     <script src="js/home.js"></script>
 
+    <!-- ★ 結構正確：Toast 和 Spinner 容器已存在 -->
     <div id="toast-container" class="toast-container"></div>
     <div id="spinner-overlay" class="spinner-overlay">
       <div class="spinner"></div>

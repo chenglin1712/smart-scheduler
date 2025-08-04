@@ -5,16 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>儀表板 - 大學生智能排程系統</title>
     <link rel="stylesheet" href="css/style.css" />
+    <!-- ★ 修正：清理重複的 script 標籤，只保留一份 -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   </head>
   <body>
     <header class="navbar">
       <div class="nav-container">
-        <a href="index.html" class="nav-logo">Scheduler Pro</a>
+        <a href="home.html" class="nav-logo">Scheduler Pro</a>
         <nav class="nav-menu">
           <a href="dashboard.html" class="active">儀表板</a>
           <a href="gpa.html">GPA 計算機</a>
@@ -68,11 +67,9 @@
               </div>
               <hr />
               <div class="ai-analyze-area">
-                <button id="analyze-btn" class="btn btn-ai">
-                  🚀 讓 AI 綜合分析所有文件
-                </button>
+                <button id="analyze-btn" class="btn btn-ai">🚀 分析任務</button>
                 <button id="summarize-btn" class="btn btn-secondary">
-                  生成重點摘要
+                  生成摘要
                 </button>
                 <button id="quiz-btn" class="btn btn-secondary">
                   生成隨堂測驗
@@ -101,8 +98,11 @@
         </div>
       </div>
     </div>
+
+    <!-- ★ 修正：確保 script 標籤順序正確，且 Toast/Spinner 元素存在 -->
     <script src="js/ui.js"></script>
     <script src="js/dashboard.js"></script>
+
     <div id="toast-container" class="toast-container"></div>
     <div id="spinner-overlay" class="spinner-overlay">
       <div class="spinner"></div>

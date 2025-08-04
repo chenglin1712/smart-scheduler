@@ -881,3 +881,88 @@ hr {
 .focus-link:hover {
   transform: translateX(5px);
 }
+
+/* =================================
+   13. Overlays: Toast & Spinner
+   ================================= */
+.toast-container {
+  position: fixed;
+  top: 80px; /* 從導覽列下方開始 */
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  padding: 16px 24px;
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-md);
+  color: white;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateX(100%);
+  animation: slideIn 0.5s forwards, slideOut 0.5s forwards 3s; /* 進入、停留3秒、離開 */
+}
+
+.toast-success {
+  background-color: #22c55e; /* 綠色 */
+}
+
+.toast-error {
+  background-color: #ef4444; /* 紅色 */
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: none; /* 平時隱藏 */
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3; /* 淺灰色軌道 */
+  border-top: 5px solid var(--primary-color); /* 藍色旋轉部分 */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

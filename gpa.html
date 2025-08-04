@@ -9,11 +9,12 @@
   <body>
     <header class="navbar">
       <div class="nav-container">
-        <a href="index.html" class="nav-logo">Scheduler Pro</a>
+        <a href="home.html" class="nav-logo">Scheduler Pro</a>
         <nav class="nav-menu">
           <a href="dashboard.html">儀表板</a>
           <a href="gpa.html" class="active">GPA 計算機</a>
           <a href="report.html">數據報告</a>
+          <!-- ★ 修正：確保登出連結有 ID -->
           <a href="#" id="logout-btn">登出</a>
         </nav>
       </div>
@@ -43,6 +44,7 @@
                 <input type="number" id="grade" placeholder="85" />
               </div>
             </div>
+            <!-- ★ 修正：為按鈕加上 .btn class -->
             <button type="submit" class="btn btn-primary">新增</button>
           </form>
         </div>
@@ -50,13 +52,24 @@
           <h2>計算結果</h2>
           <div class="gpa-display">
             <p class="gpa-label">你的預估 GPA</p>
-            <p class="gpa-value">3.85</p>
+            <p class="gpa-value">N/A</p>
           </div>
-          <div class="course-grade-list"></div>
+          <div class="course-grade-list">
+            <!-- 由 js/gpa.js 動態產生 -->
+          </div>
         </div>
       </div>
     </main>
 
+    <!-- ★ 核心修改 ★ -->
+    <!-- 1. 引入 ui.js (順序必須在 gpa.js 之前) -->
+    <script src="js/ui.js"></script>
     <script src="js/gpa.js"></script>
+
+    <!-- 2. 加入 Toast 和 Spinner 的 HTML 結構 -->
+    <div id="toast-container" class="toast-container"></div>
+    <div id="spinner-overlay" class="spinner-overlay">
+      <div class="spinner"></div>
+    </div>
   </body>
 </html>

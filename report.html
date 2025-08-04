@@ -10,7 +10,8 @@
   <body>
     <header class="navbar">
       <div class="nav-container">
-        <a href="index.html" class="nav-logo">Scheduler Pro</a>
+        <!-- ★ 修正：導覽列 Logo 應連結回 home.html -->
+        <a href="home.html" class="nav-logo">Scheduler Pro</a>
         <nav class="nav-menu">
           <a href="dashboard.html">儀表板</a>
           <a href="gpa.html">GPA 計算機</a>
@@ -40,8 +41,13 @@
         </div>
       </div>
     </main>
+
+    <!-- ★ 核心修改 ★ -->
+    <!-- 1. 引入 ui.js (順序必須在 report.js 之前) -->
     <script src="js/ui.js"></script>
     <script src="js/report.js"></script>
+
+    <!-- 2. 加入 Toast 和 Spinner 的 HTML 結構 -->
     <div id="toast-container" class="toast-container"></div>
     <div id="spinner-overlay" class="spinner-overlay">
       <div class="spinner"></div>
